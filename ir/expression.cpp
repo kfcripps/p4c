@@ -155,3 +155,12 @@ cstring IR::ListExpression::toString() const {
         str += ", " + components.at(i)->toString();
     return str + " }";
 }
+
+cstring IR::MethodCallExpression::toString() const {
+    cstring str = method->toString() + "(";
+    if (size() > 0)
+        str += arguments.at(0)->toString();
+    for (unsigned i = 1; i < size(); i++)
+        str += ", " + arguments.at(i)->toString();
+    return str + ")";
+}
