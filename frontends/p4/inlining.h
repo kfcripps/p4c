@@ -402,7 +402,7 @@ class GeneralInliner : public AbstractInliner<InlineList, InlineSummary> {
     bool optimizeParserInlining;
 
  public:
-    explicit GeneralInliner(ReferenceMap* refMap, bool _optimizeParserInlining)
+    explicit GeneralInliner(ReferenceMap *refMap, bool _optimizeParserInlining)
         : refMap(refMap),
           typeMap(new TypeMap()),
           workToDo(nullptr),
