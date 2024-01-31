@@ -167,7 +167,7 @@ const IR::P4Program *FrontEnd::run(const CompilerOptions &options, const IR::P4P
         new ValidateParsedProgram(),
         // Synthesize some built-in constructs
         new CreateBuiltins(),
-        new ResolveReferences(&refMap),
+        new ResolveReferences(&refMap, /* checkShadowing */ true),
         // First pass of constant folding, before types are known --
         // may be needed to compute types.
         new ConstantFolding(&refMap, nullptr),

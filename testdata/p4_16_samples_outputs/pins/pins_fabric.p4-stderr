@@ -1,3 +1,9 @@
+pins_fabric.p4(645): [--Wwarn=shadow] warning: 'ttl' shadows 'control ttl'
+    bit<8> ttl = 0;
+    ^^^^^^^^^^^^^^^
+pins_fabric.p4(558)
+control ttl(inout headers_t headers, inout local_metadata_t local_metadata, inout standard_metadata_t standard_metadata) {
+        ^^^
 pins_fabric.p4(314): [--Wwarn=deprecated] warning: set_nexthop: Using deprecated feature set_nexthop. Use set_ip_nexthop instead.
             @proto_id(1) set_nexthop;
                          ^^^^^^^^^^^

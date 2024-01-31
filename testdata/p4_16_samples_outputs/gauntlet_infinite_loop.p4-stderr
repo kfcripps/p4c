@@ -1,3 +1,9 @@
+gauntlet_infinite_loop.p4(16): [--Wwarn=shadow] warning: 'padding' shadows 'header padding'
+parser sub_parser(packet_in b, out headers hdr, out padding padding) {
+                                                            ^^^^^^^
+gauntlet_infinite_loop.p4(7)
+header padding {
+       ^^^^^^^
 gauntlet_infinite_loop.p4(37): [--Wwarn=ordering] warning: hdr: 'out' argument has fields in common with hdr.p
         sub_parser.apply(packet, hdr, hdr.p);
                                  ^^^
