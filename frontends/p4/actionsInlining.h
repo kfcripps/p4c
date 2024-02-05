@@ -51,8 +51,7 @@ class ActionsInliner : public AbstractInliner<ActionsInlineList, AInlineWorkList
     std::map<const IR::MethodCallStatement *, const IR::P4Action *> *replMap;
 
  public:
-    // TODO: Initialize replMap to nullptr?
-    explicit ActionsInliner(P4::ReferenceMap *refMap) : refMap(refMap) {}
+    explicit ActionsInliner(P4::ReferenceMap *refMap) : refMap(refMap), replMap(nullptr) {}
     Visitor::profile_t init_apply(const IR::Node *node) override;
     const IR::Node *preorder(IR::P4Parser *cont) override {
         prune();

@@ -349,6 +349,7 @@ void ResolveReferences::checkShadowing(const IR::INamespace *ns) const {
 
 Visitor::profile_t ResolveReferences::init_apply(const IR::Node *node) {
     anyOrder = refMap->isV1();
+    // Check shadowing even if the program map is up-to-date.
     if (!refMap->checkMap(node) || checkShadow) refMap->clear();
     return Inspector::init_apply(node);
 }
