@@ -182,7 +182,7 @@ void PNAArchTC::emitParser(EBPF::CodeBuilder *builder) const {
     builder->newline();
     builder->newline();
     pipeline->name = "tc-parse";
-    pipeline->sectionName = "classifier/" + pipeline->name;
+    pipeline->sectionName = "p4tc/parse";
     pipeline->functionName = pipeline->name.replace("-", "_") + "_func";
     pipeline->emit(builder);
     builder->target->emitLicense(builder, pipeline->license);
@@ -471,6 +471,9 @@ void TCIngressPipelinePNA::emitLocalVariables(EBPF::CodeBuilder *builder) {
                           builder->target->dataOffset(model.CPacketName.str()).c_str());
     builder->newline();
     builder->emitIndent();
+    builder->appendFormat("u8* %s = %s;", headerStartVar.c_str(), packetStartVar.c_str());
+    builder->newline();
+    builder->emitIndent();
     builder->appendFormat("void* %s = %s;", packetEndVar.c_str(),
                           builder->target->dataEnd(model.CPacketName.str()).c_str());
     builder->newline();
@@ -515,7 +518,8 @@ void EBPFPnaParser::emit(EBPF::CodeBuilder *builder) {
 //  Handled TC "macaddr" annotation.
 void PnaStateTranslationVisitor::compileExtractField(const IR::Expression *expr,
                                                      const IR::StructField *field,
-                                                     unsigned alignment, EBPF::EBPFType *type) {
+                                                     unsigned hdrOffsetBits, EBPF::EBPFType *type) {
+    unsigned alignment = hdrOffsetBits % 8;
     auto width = type->to<EBPF::IHasWidth>();
     if (width == nullptr) return;
     unsigned widthToExtract = width->widthInBits();
@@ -1104,6 +1108,7 @@ bool ConvertToEbpfPipelineTC::preorder(const IR::PackageBlock *block) {
     (void)block;
 
     pipeline = new TCIngressPipelinePNA(name, options, refmap, typemap);
+    pipeline->sectionName = "p4tc/main";
     auto parser_converter = new ConvertToEBPFParserPNA(pipeline, typemap);
     parserBlock->apply(*parser_converter);
     pipeline->parser = parser_converter->getEBPFParser();
