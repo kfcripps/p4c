@@ -22,8 +22,6 @@
 #include "backends/p4tools/modules/testgen/core/symbolic_executor/selected_branches.h"
 #include "backends/p4tools/modules/testgen/core/symbolic_executor/symbolic_executor.h"
 #include "backends/p4tools/modules/testgen/core/target.h"
-#include "backends/p4tools/modules/testgen/lib/logging.h"
-#include "backends/p4tools/modules/testgen/lib/test_backend.h"
 #include "backends/p4tools/modules/testgen/options.h"
 #include "backends/p4tools/modules/testgen/register.h"
 
@@ -53,10 +51,18 @@ SymbolicExecutor *pickExecutionEngine(const TestgenOptions &testgenOptions,
 
 int generateAbstractTests(const TestgenOptions &testgenOptions, const ProgramInfo *programInfo,
                           SymbolicExecutor &symbex) {
-    // Get the filename of the input file and remove the extension
-    // This assumes that inputFile is not null.
-    auto const inputFile = P4CContext::get().options().file;
+    cstring inputFile = P4CContext::get().options().file;
+    if (inputFile == nullptr) {
+        ::error("No input file provided.");
+        return EXIT_FAILURE;
+    }
+
+    /// If the test name is not provided, use the steam of the input file name as test name.
     auto testPath = std::filesystem::path(inputFile.c_str()).stem();
+    if (testgenOptions.testBaseName.has_value()) {
+        testPath = testPath.replace_filename(testgenOptions.testBaseName.value().c_str());
+    }
+
     // Create the directory, if the directory string is valid and if it does not exist.
     cstring testDirStr = testgenOptions.outputDir;
     if (!testDirStr.isNullOrEmpty()) {
@@ -64,8 +70,13 @@ int generateAbstractTests(const TestgenOptions &testgenOptions, const ProgramInf
         std::filesystem::create_directories(testDir);
         testPath = testDir / testPath;
     }
+
     // Each test back end has a different run function.
-    auto *testBackend = TestgenTarget::getTestBackend(*programInfo, symbex, testPath);
+    // The test name is the stem of the output base path.
+    TestBackendConfiguration testBackendConfiguration{testPath.c_str(), testgenOptions.maxTests,
+                                                      testPath, testgenOptions.seed};
+    auto *testBackend =
+        TestgenTarget::getTestBackend(*programInfo, testBackendConfiguration, symbex);
     // Define how to handle the final state for each test. This is target defined.
     // We delegate execution to the symbolic executor.
     auto callBack = [testBackend](auto &&finalState) {
@@ -73,9 +84,6 @@ int generateAbstractTests(const TestgenOptions &testgenOptions, const ProgramInf
     };
 
     symbex.run(callBack);
-
-    // Emit a performance report, if desired.
-    printPerformanceReport(testPath);
 
     // Do not print this warning if assertion mode is enabled.
     if (testBackend->getTestCount() == 0 && !testgenOptions.assertionModeEnabled) {
@@ -108,9 +116,6 @@ int Testgen::mainImpl(const CompilerResult &compilerResult) {
         ::error("Testgen: Encountered errors during preprocessing. Exiting");
         return EXIT_FAILURE;
     }
-
-    // Print basic information for each test.
-    enableInformationLogging();
 
     // Get the options and the seed.
     const auto &testgenOptions = TestgenOptions::get();
