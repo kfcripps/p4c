@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "frontends/common/options.h"
 #include "frontends/p4/enumInstance.h"
+#include "frontends/p4/tableApply.h"
 #include "lib/big_int_util.h"
 #include "lib/log.h"
 
@@ -237,13 +238,18 @@ const IR::Node *DoConstantFolding::preorder(IR::ArrayIndex *e) {
     return e;
 }
 
-const IR::Node *DoConstantFolding::preorder(IR::SwitchCase *c) {
-    // Action enum switch case labels must be action names.
-    // We only want to fold the label expression after it is inspected by the typechecker.
-    if (typesKnown) visit(c->label);
-    visit(c->statement);
-    prune();
-    return c;
+const IR::Node *DoConstantFolding::preorder(IR::SwitchStatement *s) {
+    if (!typesKnown && TableApplySolver::isActionRun(s->expression, refMap, typeMap)) {
+        visit(s->expression);
+
+        // Action enum switch case labels must be action names.
+        // We only want to fold the label expressions after they are inspected by the typechecker,
+        // so don't visit the labels here.
+        for (auto* c : s->cases)
+            visit(c->statement);
+        prune();
+    }
+    return s;
 }
 
 const IR::Node *DoConstantFolding::postorder(IR::Cmpl *e) {
