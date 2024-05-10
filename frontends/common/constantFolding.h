@@ -61,11 +61,11 @@ class DoConstantFolding : public Transform {
 
     /// Used to resolve IR nodes to declarations.
     /// If `nullptr`, then `const` values cannot be resolved.
-    const ReferenceMap *refMap;
+    ReferenceMap *refMap;
 
     /// Used to resolve nodes to their types.
     /// If `nullptr`, then type information is not available.
-    const TypeMap *typeMap;
+    TypeMap *typeMap;
 
     /// Set to `true` iff `typeMap` is not `nullptr`.
     bool typesKnown;
@@ -111,7 +111,7 @@ class DoConstantFolding : public Transform {
     Result setContains(const IR::Expression *keySet, const IR::Expression *constant) const;
 
  public:
-    DoConstantFolding(const ReferenceMap *refMap, const TypeMap *typeMap, bool warnings = true,
+    DoConstantFolding(ReferenceMap *refMap, TypeMap *typeMap, bool warnings = true,
                       ConstantFoldingPolicy *policy = nullptr)
         : refMap(refMap), typeMap(typeMap), typesKnown(typeMap != nullptr), warnings(warnings) {
         if (policy) {
