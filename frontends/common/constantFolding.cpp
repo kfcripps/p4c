@@ -238,8 +238,21 @@ const IR::Node *DoConstantFolding::preorder(IR::ArrayIndex *e) {
     return e;
 }
 
+bool couldBeActionRun(const IR::Expression *e) {
+    const auto* mem = e->to<IR::Member>();
+    if (!mem) return false;
+    if (mem->member.name != IR::Type_Table::action_run) return false;
+    const auto* mce = mem->expr->to<IR::MethodCallExpression>();
+    if (!mce) return false;
+    if (mce->member->name.name != IR::IApply::applyMethodName) return false;
+
+    return true;
+}
+
 const IR::Node *DoConstantFolding::preorder(IR::SwitchStatement *s) {
-    if (!typesKnown && TableApplySolver::isActionRun(s->expression, refMap, typeMap)) {
+
+    if (!typesKnown && couldBeActionRun(s->expression)) {
+        auto* mem = expression->to<IR::Member>();
         visit(s->expression);
 
         // Action enum switch case labels must be action names.
