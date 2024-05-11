@@ -238,21 +238,26 @@ const IR::Node *DoConstantFolding::preorder(IR::ArrayIndex *e) {
     return e;
 }
 
-bool couldBeActionRun(const IR::Expression *e) {
+bool isActionRun(const IR::Expression *e, ReferenceMap *refMap) {
     const auto* mem = e->to<IR::Member>();
     if (!mem) return false;
     if (mem->member.name != IR::Type_Table::action_run) return false;
-    const auto* mce = mem->expr->to<IR::MethodCallExpression>();
-    if (!mce) return false;
-    if (mce->member->name.name != IR::IApply::applyMethodName) return false;
+    const auto* applyMce = mem->expr->to<IR::MethodCallExpression>();
+    if (!applyMce) return false;
+    const auto* applyMceMem = applyMce->method->to<IR::Member>();
+    if (!applyMceMem) return false;
+    if (applyMceMem->member.name != IR::IApply::applyMethodName) return false;
+    const auto* tablePathExpr = applyMceMem->expr->to<IR::PathExpression>();
+    if (!tablePathExpr) return false;
+    const auto* tableDecl = refMap->getDeclaration(tablePathExpr->path);
+    if (!tableDecl) return false;
 
-    return true;
+    return tableDecl->is<IR::P4Table>();
 }
 
 const IR::Node *DoConstantFolding::preorder(IR::SwitchStatement *s) {
 
-    if (!typesKnown && couldBeActionRun(s->expression)) {
-        auto* mem = expression->to<IR::Member>();
+    if (!typesKnown && isActionRun(s->expression, refMap)) {
         visit(s->expression);
 
         // Action enum switch case labels must be action names.
