@@ -160,6 +160,7 @@ class DoConstantFolding : public Transform {
     const IR::Node *postorder(IR::SelectExpression *e) override;
     const IR::Node *postorder(IR::IfStatement *statement) override;
     const IR::Node *preorder(IR::AssignmentStatement *statement) override;
+    const IR::Node *preorder(IR::SwitchCase *c) override;
     const IR::Node *preorder(IR::ArrayIndex *e) override;
     const IR::BlockStatement *preorder(IR::BlockStatement *bs) override {
         if (bs->annotations->getSingle("disable_optimization")) prune();
