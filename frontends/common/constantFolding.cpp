@@ -237,6 +237,38 @@ const IR::Node *DoConstantFolding::preorder(IR::ArrayIndex *e) {
     return e;
 }
 
+bool isActionRun(const IR::Expression *e, const ReferenceMap *refMap) {
+    const auto* mem = e->to<IR::Member>();
+    if (!mem) return false;
+    if (mem->member.name != IR::Type_Table::action_run) return false;
+    const auto* applyMce = mem->expr->to<IR::MethodCallExpression>();
+    if (!applyMce) return false;
+    const auto* applyMceMem = applyMce->method->to<IR::Member>();
+    if (!applyMceMem) return false;
+    if (applyMceMem->member.name != IR::IApply::applyMethodName) return false;
+    const auto* tablePathExpr = applyMceMem->expr->to<IR::PathExpression>();
+    if (!tablePathExpr) return false;
+    const auto* tableDecl = refMap->getDeclaration(tablePathExpr->path);
+    if (!tableDecl) return false;
+
+    return tableDecl->is<IR::P4Table>();
+}
+
+const IR::Node *DoConstantFolding::preorder(IR::SwitchStatement *s) {
+
+    if (!typesKnown && isActionRun(s->expression, refMap)) {
+        visit(s->expression);
+
+        // Action enum switch case labels must be action names.
+        // We only want to fold the label expressions after they are inspected by the typechecker,
+        // so don't visit the labels here.
+        for (auto* c : s->cases)
+            visit(c->statement);
+        prune();
+    }
+    return s;
+}
+
 const IR::Node *DoConstantFolding::postorder(IR::Cmpl *e) {
     auto op = getConstant(e->expr);
     if (op == nullptr) return e;
