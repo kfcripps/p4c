@@ -255,7 +255,6 @@ bool isActionRun(const IR::Expression *e, const ReferenceMap *refMap) {
 }
 
 const IR::Node *DoConstantFolding::preorder(IR::SwitchStatement *s) {
-
     if (!typesKnown && isActionRun(s->expression, refMap)) {
         visit(s->expression);
 
