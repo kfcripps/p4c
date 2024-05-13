@@ -30,8 +30,8 @@ class IHasBlock {
 };
 
 class Evaluator final : public Inspector, public IHasBlock {
-    const ReferenceMap *refMap;
-    const TypeMap *typeMap;
+    ReferenceMap *refMap;
+    TypeMap *typeMap;
     std::vector<IR::Block *> blockStack;
     IR::ToplevelBlock *toplevelBlock;
 
@@ -40,7 +40,7 @@ class Evaluator final : public Inspector, public IHasBlock {
     void popBlock(IR::Block *block);
 
  public:
-    Evaluator(const ReferenceMap *refMap, const TypeMap *typeMap)
+    Evaluator(ReferenceMap *refMap, TypeMap *typeMap)
         : refMap(refMap), typeMap(typeMap), toplevelBlock(nullptr) {
         CHECK_NULL(refMap);
         CHECK_NULL(typeMap);
