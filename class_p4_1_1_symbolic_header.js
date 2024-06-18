@@ -5,6 +5,7 @@ var class_p4_1_1_symbolic_header =
     [ "assign", "class_p4_1_1_symbolic_header.html#a519b233034a406d4ce3906d2beccccfc", null ],
     [ "clone", "class_p4_1_1_symbolic_header.html#ade13c7128737539d63908665161f24ea", null ],
     [ "dbprint", "class_p4_1_1_symbolic_header.html#a29ebff084d598e8f7e06ef268f8a0f76", null ],
+    [ "DECLARE_TYPEINFO", "class_p4_1_1_symbolic_header.html#a3ca27ff435378f644adfd547b86940f9", null ],
     [ "equals", "class_p4_1_1_symbolic_header.html#a93febc9f95a2f0372ed6a6024c8dd37e", null ],
     [ "get", "class_p4_1_1_symbolic_header.html#a9d2e3fb6d9db9ced42979ce8a15efc66", null ],
     [ "merge", "class_p4_1_1_symbolic_header.html#ac96d7bd79c221213b17c30be3e50108d", null ],

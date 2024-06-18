@@ -1,4 +1,5 @@
 <map id="P4::DoRemoveParserControlFlow" name="P4::DoRemoveParserControlFlow">
-<area shape="rect" id="node2" href="$class_transform.html" title="Transform" alt="" coords="76,79,157,104"/>
-<area shape="rect" id="node3" href="$class_visitor.html" title="Visitor" alt="" coords="87,5,145,31"/>
+<area shape="rect" id="node1" title="Converts if statements in parsers into transitions." alt="" coords="5,155,241,181"/>
+<area shape="rect" id="node2" href="$class_transform.html" title=" " alt="" coords="80,80,167,107"/>
+<area shape="rect" id="node3" href="$class_visitor.html" title=" " alt="" coords="91,5,155,32"/>
 </map>

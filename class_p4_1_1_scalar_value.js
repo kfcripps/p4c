@@ -7,6 +7,7 @@ var class_p4_1_1_scalar_value =
     ] ],
     [ "ScalarValue", "class_p4_1_1_scalar_value.html#aa325890f7269197af5a086e5f16cf32b", null ],
     [ "dbprint", "class_p4_1_1_scalar_value.html#a1ae7e8886d96482904b8e2fe1d2063c1", null ],
+    [ "DECLARE_TYPEINFO", "class_p4_1_1_scalar_value.html#a6beebb5edf646cc712cabc04440614ee", null ],
     [ "hasUninitializedParts", "class_p4_1_1_scalar_value.html#a4f3d6f356957e7a8661374519881f8e7", null ],
     [ "isKnown", "class_p4_1_1_scalar_value.html#a566d9ea6dac861e86ab23061ef498fee", null ],
     [ "isScalar", "class_p4_1_1_scalar_value.html#aedc1dd193d34f4e4408a2b0391e78de0", null ],

@@ -6,6 +6,7 @@ var class_i_r_1_1_vector_base =
     [ "VectorBase", "class_i_r_1_1_vector_base.html#a849c99edb3b4e1489d91374a59a8cc72", null ],
     [ "VectorBase", "class_i_r_1_1_vector_base.html#abd7c2de7256d8c481895d3e1b01ea3c1", null ],
     [ "begin", "class_i_r_1_1_vector_base.html#a98db2a5a5f8fa6ce086b3123f3d9cab4", null ],
+    [ "DECLARE_TYPEINFO_WITH_TYPEID", "class_i_r_1_1_vector_base.html#a9bb4d0113f7473c2a6cf0124607d1c70", null ],
     [ "empty", "class_i_r_1_1_vector_base.html#a9941bbadea0be126eaaca3c94f8576d8", null ],
     [ "end", "class_i_r_1_1_vector_base.html#ad4241397c26b202f126b43074b1d4db7", null ],
     [ "operator=", "class_i_r_1_1_vector_base.html#a50d7222ec04601ec94b3aa42a114c282", null ],

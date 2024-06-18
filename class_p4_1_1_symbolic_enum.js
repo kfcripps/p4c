@@ -7,6 +7,7 @@ var class_p4_1_1_symbolic_enum =
     [ "assign", "class_p4_1_1_symbolic_enum.html#a6a996a0cf4017d6055941d18df581eb0", null ],
     [ "clone", "class_p4_1_1_symbolic_enum.html#a2c10ab8564392af66de2acde07621c87", null ],
     [ "dbprint", "class_p4_1_1_symbolic_enum.html#ad3555acf53ef8f8a08bab6531ac2d952", null ],
+    [ "DECLARE_TYPEINFO", "class_p4_1_1_symbolic_enum.html#a848ec0b413ce99f2d11c094f9da93e7f", null ],
     [ "equals", "class_p4_1_1_symbolic_enum.html#aa93cf0c67c9f7db030ec3062ba9e80eb", null ],
     [ "merge", "class_p4_1_1_symbolic_enum.html#aece0dae725accfb1a43176cc4733d052", null ]
 ];

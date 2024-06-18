@@ -1,12 +1,14 @@
 var class_util_1_1_source_code_builder =
 [
     [ "SourceCodeBuilder", "class_util_1_1_source_code_builder.html#adf581e6f2ed59a5fbc9320745c54b6d1", null ],
-    [ "append", "class_util_1_1_source_code_builder.html#a681f33740790a91399bd0cd56c5648ac", null ],
-    [ "append", "class_util_1_1_source_code_builder.html#ae6b0cffb15bb6e6993bf1fca6b92f381", null ],
+    [ "append", "class_util_1_1_source_code_builder.html#a5ce87cc2a1a5bdb91b6def2225ef7058", null ],
     [ "append", "class_util_1_1_source_code_builder.html#a9fa7faa278b6805fe0f0be34f2f5c5b4", null ],
-    [ "append", "class_util_1_1_source_code_builder.html#a14bdad5a9e602f48979e383a5a46bc7e", null ],
+    [ "append", "class_util_1_1_source_code_builder.html#a43f8b305e16ff529ac2e0b34c32207e7", null ],
+    [ "append", "class_util_1_1_source_code_builder.html#a681f33740790a91399bd0cd56c5648ac", null ],
     [ "append", "class_util_1_1_source_code_builder.html#af6f65182ec6957a734081e9bbc4c844a", null ],
-    [ "appendFormat", "class_util_1_1_source_code_builder.html#a2fee334afd4488898f1e5182fc11cb7f", null ],
+    [ "append", "class_util_1_1_source_code_builder.html#a14bdad5a9e602f48979e383a5a46bc7e", null ],
+    [ "appendFormat", "class_util_1_1_source_code_builder.html#abba2651e8adb6a12c9035fdb65e3a138", null ],
+    [ "appendLine", "class_util_1_1_source_code_builder.html#a6b5969fb043cab186113f7f1592bc204", null ],
     [ "appendLine", "class_util_1_1_source_code_builder.html#a55786083da411919d01a922bbb766997", null ],
     [ "blockEnd", "class_util_1_1_source_code_builder.html#abd4ed80da895d962f6f96c1c4726536f", null ],
     [ "blockStart", "class_util_1_1_source_code_builder.html#a964095757781d609b71397c7f08f2020", null ],
@@ -19,5 +21,6 @@ var class_util_1_1_source_code_builder =
     [ "lastIsSpace", "class_util_1_1_source_code_builder.html#a96443af3e785afdfd9a177262a19c9dc", null ],
     [ "newline", "class_util_1_1_source_code_builder.html#a01f98bd9ded0a97daed70a168816dd1c", null ],
     [ "spc", "class_util_1_1_source_code_builder.html#aadd3ff4894d2d88947a0becb958cde75", null ],
+    [ "supressStatementSemi", "class_util_1_1_source_code_builder.html#a6061ee163af144a0a0793f9ec15e9f7c", null ],
     [ "toString", "class_util_1_1_source_code_builder.html#a472b1232087ba8be7ae36966e6155d51", null ]
 ];

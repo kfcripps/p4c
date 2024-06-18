@@ -1,5 +1,7 @@
 var class_sym_bit_matrix =
 [
+    [ "clear", "class_sym_bit_matrix.html#af732dd20ccf85cebac050fa5e5c87401", null ],
+    [ "empty", "class_sym_bit_matrix.html#a5ef7f6147f993fe64e0e36637ce953cc", null ],
     [ "operator!=", "class_sym_bit_matrix.html#ace64e842a58a8ec96b5f22c6df02c48e", null ],
     [ "operator()", "class_sym_bit_matrix.html#a8f8b3810c4802ca821d9fb87603fba23", null ],
     [ "operator()", "class_sym_bit_matrix.html#a1238f52b75d87829c55b1253e851fbef", null ],

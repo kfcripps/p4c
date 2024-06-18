@@ -1,5 +1,6 @@
 <map id="P4::LocalizeAllActions" name="P4::LocalizeAllActions">
-<area shape="rect" id="node2" href="$class_pass_manager.html" title="PassManager" alt="" coords="30,152,133,177"/>
-<area shape="rect" id="node3" href="$class_visitor.html" title="Visitor" alt="" coords="53,5,111,31"/>
-<area shape="rect" id="node4" href="$class_backtrack.html" title="Backtrack" alt="" coords="80,79,160,104"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,229,169,256"/>
+<area shape="rect" id="node2" href="$class_pass_manager.html" title=" " alt="" coords="33,155,141,181"/>
+<area shape="rect" id="node3" href="$class_visitor.html" title=" " alt="" coords="55,5,119,32"/>
+<area shape="rect" id="node4" href="$class_backtrack.html" title=" " alt="" coords="85,80,172,107"/>
 </map>

@@ -6,6 +6,7 @@ var class_p4_1_1_symbolic_tuple =
     [ "assign", "class_p4_1_1_symbolic_tuple.html#ae718545923961f3859c25411e62047d2", null ],
     [ "clone", "class_p4_1_1_symbolic_tuple.html#a1da6abcb7190a479a30ee9a31ec788ff", null ],
     [ "dbprint", "class_p4_1_1_symbolic_tuple.html#a4fa8d26e48a8436dc4dcb350b1d74a09", null ],
+    [ "DECLARE_TYPEINFO", "class_p4_1_1_symbolic_tuple.html#a8da1109accb43c52b7d5f09defc7bb3d", null ],
     [ "equals", "class_p4_1_1_symbolic_tuple.html#afbb6adaf569b91e21c571cecfba92c75", null ],
     [ "get", "class_p4_1_1_symbolic_tuple.html#a8a83d2e1ce23ca06b943dd1bbfbfb7df", null ],
     [ "hasUninitializedParts", "class_p4_1_1_symbolic_tuple.html#adb76d4643313fab9a30824a24a7afe66", null ],

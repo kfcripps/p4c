@@ -1,5 +1,7 @@
 var class_l_t_bit_matrix =
 [
+    [ "clear", "class_l_t_bit_matrix.html#af732dd20ccf85cebac050fa5e5c87401", null ],
+    [ "empty", "class_l_t_bit_matrix.html#a5ef7f6147f993fe64e0e36637ce953cc", null ],
     [ "operator!=", "class_l_t_bit_matrix.html#a363cf422114905283b0e7eb0ba112ade", null ],
     [ "operator()", "class_l_t_bit_matrix.html#aacb055fde087880da546010f83615221", null ],
     [ "operator()", "class_l_t_bit_matrix.html#a28c05f653f0299774dad6f62e6b61b70", null ],
