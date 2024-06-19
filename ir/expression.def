@@ -418,7 +418,7 @@ class Cast : Operation_Unary {
 }
 
 class SelectCase {
-    Expression     keyset;
+    LisExpression     keyset;
     PathExpression state;
     dbprint { out << keyset << ": " << state; }
 }

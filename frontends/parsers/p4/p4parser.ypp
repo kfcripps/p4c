@@ -842,13 +842,14 @@ selectCase
 
 keysetExpression
     : tupleKeysetExpression     { $$ = new IR::ListExpression(@1, *$1); }
-    | simpleKeysetExpression    { $$ = $1; }
     ;
 
+// produces a tuple keyset expression with one or more components
 tupleKeysetExpression
     : "(" simpleKeysetExpression "," simpleExpressionList ")"
                                             { $$ = $4; $4->insert($4->begin(), $2); $$->srcInfo = @2 + @4; }
     | "(" reducedSimpleKeysetExpression ")" { $$ = new IR::Vector<IR::Expression>(); $$->push_back($2); $$->srcInfo = @2; }
+    | simpleKeysetExpression                { $$ = new IR::Vector<IR::Expression>(); $$->push_back($1); $$->srcInfo = @1; }
     ;
 
 optTrailingComma
