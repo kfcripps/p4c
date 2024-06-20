@@ -712,7 +712,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         LOG3("Analyzing callees of " << expression << DBPrint::Brief << callees << DBPrint::Reset
                                      << indent);
         ProgramPoint pt(callingContext, expression);
-        ComputeWriteSet cw(this, pt, currentDefinitions);
+        ComputeWriteSet cw(this, pt, currentDefinitions, cached_locs);
         cw.setCalledBy(this);
         for (auto c : callees) (void)c->getNode()->apply(cw);
         currentDefinitions = cw.currentDefinitions;
@@ -759,6 +759,21 @@ void ComputeWriteSet::visitVirtualMethods(const IR::IndexedVector<IR::Declaratio
     }
 }
 
+const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
+    if (!ctxt) return nullptr;
+    loc_t tmp{ctxt->node, getLoc(ctxt->parent)};
+    return &*cached_locs.insert(tmp).first;
+}
+
+const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
+    const IR::Node *n, const Visitor::Context *ctxt) {
+    for (auto *p = ctxt; p; p = p->parent)
+        if (p->node == n) return getLoc(p);
+    auto rv = getLoc(ctxt);
+    loc_t tmp{n, rv};
+    return &*cached_locs.insert(tmp).first;
+}
+
 // Symbolic execution of the parser
 bool ComputeWriteSet::preorder(const IR::P4Parser *parser) {
     LOG3("CWS Visiting " << dbp(parser));
@@ -784,7 +799,7 @@ bool ComputeWriteSet::preorder(const IR::P4Parser *parser) {
         // but we use the same data structures
         ProgramPoint pt(state);
         currentDefinitions = allDefinitions->getDefinitions(pt);
-        ComputeWriteSet cws(this, pt, currentDefinitions);
+        ComputeWriteSet cws(this, pt, currentDefinitions, cached_locs);
         cws.setCalledBy(this);
         (void)state->apply(cws);
 
