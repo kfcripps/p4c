@@ -488,7 +488,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     /// if true we are processing an expression on the lhs of an assignment
     bool lhs;
     /// For each expression the location set it writes
-    hvec_map<const IR::Expression *, const LocationSet *> writes;
+    hvec_map<ProgramPoint, const LocationSet *> writes;
     bool virtualMethod;  /// True if we are analyzing a virtual method
     AllocTrace memuse;
     alloc_trace_cb_t nested_trace;
@@ -519,7 +519,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     bool setDefinitions(Definitions *defs, const IR::Node *who = nullptr, bool overwrite = false);
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
     const LocationSet *getWrites(const IR::Expression *expression) const {
-        auto result = ::get(writes, expression);
+        auto result = ::get(writes, getProgramPoint(expression));
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
     }
@@ -527,16 +527,17 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         CHECK_NULL(expression);
         CHECK_NULL(loc);
         LOG3(expression << dbp(expression) << " writes " << loc);
-        if (auto it = writes.find(expression); it != writes.end()) {
+        ProgramPoint progPoint = getProgramPoint(expression);
+        if (auto it = writes.find(progPoint); it != writes.end()) {
             BUG_CHECK(*it->second == *loc || expression->is<IR::Literal>(),
                       "Expression %1% write set already set", expression);
         } else {
-            writes.emplace(expression, loc);
+            writes.emplace(progPoint, loc);
         }
     }
     void dbprint(std::ostream &out) const override {
         if (writes.empty()) out << "No writes";
-        for (auto &it : writes) out << it.first << " writes " << it.second << Log::endl;
+        for (auto &it : writes) out << *it.first.begin() << " writes " << it.second << Log::endl;
     }
     profile_t init_apply(const IR::Node *root) override {
         auto rv = Inspector::init_apply(root);
