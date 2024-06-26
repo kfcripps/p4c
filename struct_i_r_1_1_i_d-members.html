@@ -11,7 +11,21 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<script type="text/javascript" src="clipboard.js"></script>
+<!--  Add link to paragraphs   -->
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript">
+  DoxygenAwesomeParagraphLink.init()
+</script>
+<!-- Add copy button to code fragments  -->
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript">
+  DoxygenAwesomeFragmentCopyButton.init()
+</script>
+<!-- Add dark mode toggle -->
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript">
+  DoxygenAwesomeDarkModeToggle.init()
+</script>
 <link href="navtree.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="navtreedata.js"></script>
 <script type="text/javascript" src="navtree.js"></script>
@@ -21,7 +35,7 @@
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="p4c.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -128,6 +142,8 @@ $(function(){initNavTree('struct_i_r_1_1_i_d.html',''); initResizable(true); });
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>operator==</b>(const char *a) const (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>originalName</b> (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>srcInfo</b> (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>string</b>() const (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>string_view</b>() const (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>toString</b>() const override (defined in <a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a>)</td><td class="entry"><a class="el" href="struct_i_r_1_1_i_d.html">IR::ID</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~IHasSourceInfo</b>() (defined in <a class="el" href="class_util_1_1_i_has_source_info.html">Util::IHasSourceInfo</a>)</td><td class="entry"><a class="el" href="class_util_1_1_i_has_source_info.html">Util::IHasSourceInfo</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
 </table></div><!-- contents -->
