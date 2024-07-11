@@ -614,7 +614,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         std::ostream os(&fb);
         dbprint(os);
         fb.close();
-        const loc_t& exprLoc = *getLoc(getChildContext());
+        const loc_t& exprLoc = *getLoc(expression, getChildContext());
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
