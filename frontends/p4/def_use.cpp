@@ -638,8 +638,10 @@ bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
     visit(expression->select);
     visit(&expression->selectCases);
     auto l = getWrites(expression->select);
-    for (auto c : expression->selectCases) {
-        auto s = getWrites(c->keyset);
+    const loc_t *selectCasesLoc = getLoc(&expression->selectCases, getChildContext());
+    for (auto *c : expression->selectCases) {
+        const loc_t *selectCaseLoc = getLoc(c, selectCasesLoc);
+        auto s = getWrites(c->keyset, selectCaseLoc);
         l = l->join(s);
     }
     expressionWrites(expression, l);
@@ -673,6 +675,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
     lhs = save;
     auto mi = MethodInstance::resolve(expression, storageMap->refMap, storageMap->typeMap);
     if (auto bim = mi->to<BuiltInMethod>()) {
+        // TODO: fix by passing bim loc_t
         auto base = getWrites(bim->appliedTo);
         cstring name = bim->name.name;
         if (name == IR::Type_Header::setInvalid || name == IR::Type_Header::setValid) {
@@ -735,6 +738,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         visit(arg);
         lhs = save;
         if (p->direction == IR::Direction::Out || p->direction == IR::Direction::InOut) {
+            // TODO: fix by passing arg loc_t
             auto val = getWrites(arg->expression);
             result = result->join(val);
         }
@@ -759,12 +763,22 @@ void ComputeWriteSet::visitVirtualMethods(const IR::IndexedVector<IR::Declaratio
     }
 }
 
+// Use to get loc if n is indirect child (e.g. grandchild) of currently being visited node.
+// In this case parentLoc is the loc of n's direct parent.
+const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
+    const IR::Node *n, const loc_t *parentLoc) {
+    loc_t tmp{n, parentLoc};
+    return &*cached_locs.insert(tmp).first;
+}
+
+// Use to get loc of currently being visited node
 const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
     if (!ctxt) return nullptr;
     loc_t tmp{ctxt->node, getLoc(ctxt->parent)};
     return &*cached_locs.insert(tmp).first;
 }
 
+// Use to get loc if n is direct child of currently being visited node
 const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
     const IR::Node *n, const Visitor::Context *ctxt) {
     for (auto *p = ctxt; p; p = p->parent)

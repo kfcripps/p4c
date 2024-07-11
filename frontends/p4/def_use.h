@@ -596,8 +596,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         visitDagOnce = false;
     }
     void visitVirtualMethods(const IR::IndexedVector<IR::Declaration> &locals);
+    const loc_t *getLoc(const IR::Node *n, const loc_t *parentLoc);
     const loc_t *getLoc(const Visitor::Context *ctxt);
-    // TODO: Not needed?
     const loc_t *getLoc(const IR::Node *n, const Visitor::Context *ctxt);
     void enterScope(const IR::ParameterList *parameters,
                     const IR::IndexedVector<IR::Declaration> *locals, ProgramPoint startPoint,
@@ -607,6 +607,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     Definitions *getDefinitionsAfter(const IR::ParserState *state);
     bool setDefinitions(Definitions *defs, const IR::Node *who = nullptr, bool overwrite = false);
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
+    // Use to get writes of a node that is a direct child of the currently being visited node.
     const LocationSet *getWrites(const IR::Expression *expression) {
         // TODO: Should it be getChildContext()?
         std::filebuf fb;
@@ -615,6 +616,20 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         dbprint(os);
         fb.close();
         const loc_t& exprLoc = *getLoc(expression, getChildContext());
+        auto result = ::get(writes, exprLoc);
+        BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
+        return result;
+    }
+    // Use to get writes of a node that is not a direct child of the currently being visited node.
+    // In this case, parentLoc is the loc of expression's direct parent node.
+    const LocationSet *getWrites(const IR::Expression *expression, const loc_t *parentLoc) {
+        // TODO: Should it be getChildContext()?
+        std::filebuf fb;
+        fb.open ("def_use.log",std::ios::out);
+        std::ostream os(&fb);
+        dbprint(os);
+        fb.close();
+        const loc_t& exprLoc = *getLoc(expression, parentLoc);
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
