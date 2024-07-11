@@ -29,6 +29,8 @@ limitations under the License.
 #include "lib/ordered_set.h"
 #include "typeMap.h"
 
+#include <fstream>
+
 namespace P4 {
 
 class StorageFactory;
@@ -607,7 +609,12 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
     const LocationSet *getWrites(const IR::Expression *expression) {
         // TODO: Should it be getChildContext()?
-        const loc_t& exprLoc = *getLoc(getContext());
+        std::filebuf fb;
+        fb.open ("def_use.log",std::ios::out);
+        std::ostream os(&fb);
+        dbprint(os);
+        fb.close();
+        const loc_t& exprLoc = *getLoc(getChildContext());
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
@@ -617,7 +624,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         CHECK_NULL(loc);
         LOG3(expression << dbp(expression) << " writes " << loc);
         // TODO: Should it be getChildContext()?
-        const loc_t& exprLoc = *getLoc(getContext());
+        const loc_t& exprLoc = *getLoc(getChildContext());
         if (auto it = writes.find(exprLoc); it != writes.end()) {
             BUG_CHECK(*it->second == *loc || expression->is<IR::Literal>(),
                       "Expression %1% write set already set", expression);
