@@ -675,7 +675,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
     lhs = save;
     auto mi = MethodInstance::resolve(expression, storageMap->refMap, storageMap->typeMap);
     if (auto bim = mi->to<BuiltInMethod>()) {
-        // TODO: fix by passing bim loc_t
+        // TODO: fix by passing bim loc_t ??
         auto base = getWrites(bim->appliedTo);
         cstring name = bim->name.name;
         if (name == IR::Type_Header::setInvalid || name == IR::Type_Header::setValid) {
@@ -730,6 +730,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
 
     auto result = LocationSet::empty;
     // For all methods out/inout arguments are written
+    const loc_t *argsLoc = getLoc(expression->arguments, getChildContext());
     for (auto p : *mi->substitution.getParametersInArgumentOrder()) {
         auto arg = mi->substitution.lookup(p);
         bool save = lhs;
@@ -738,8 +739,8 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         visit(arg);
         lhs = save;
         if (p->direction == IR::Direction::Out || p->direction == IR::Direction::InOut) {
-            // TODO: fix by passing arg loc_t
-            auto val = getWrites(arg->expression);
+            const loc_t *argLoc = getLoc(arg, argsLoc);
+            auto val = getWrites(arg->expression, argLoc);
             result = result->join(val);
         }
     }
