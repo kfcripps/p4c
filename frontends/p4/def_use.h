@@ -39,10 +39,16 @@ class LocationSet;
 struct loc_t {
     const IR::Node *node;
     const loc_t *parent;
+    // TODO: Remove operator<?
     bool operator<(const loc_t &a) const {
         if (node != a.node) return node->id < a.node->id;
         if (!parent || !a.parent) return parent != nullptr;
         return *parent < *a.parent;
+    }
+    bool operator==(const loc_t &a) const {
+        if (node != a.node) return false;
+        if (parent && a.parent) return *parent == *a.parent;
+        return parent == a.parent;
     }
     std::size_t hash() const;
 };
@@ -658,6 +664,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     }
 
  private:
+    // TODO: Make std::unordered_set?
     std::set<loc_t> &cached_locs;
 };
 
