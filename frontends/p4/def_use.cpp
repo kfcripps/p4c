@@ -730,7 +730,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
 
     auto result = LocationSet::empty;
     // For all methods out/inout arguments are written
-    const loc_t *argsLoc = getLoc(expression->arguments, getChildContext());
+    // const loc_t *argsLoc = getLoc(expression->arguments, getChildContext());
     for (auto p : *mi->substitution.getParametersInArgumentOrder()) {
         auto arg = mi->substitution.lookup(p);
         bool save = lhs;
@@ -739,7 +739,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         visit(arg);
         lhs = save;
         if (p->direction == IR::Direction::Out || p->direction == IR::Direction::InOut) {
-            const loc_t *argLoc = getLoc(arg, argsLoc);
+            const loc_t *argLoc = getLoc(arg, getChildContext());
             auto val = getWrites(arg->expression, argLoc);
             result = result->join(val);
         }
