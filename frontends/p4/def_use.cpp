@@ -772,8 +772,7 @@ std::size_t P4::loc_t::hash() const {
 // Returns program location of n, given the program location of n's direct parent.
 // Use to get loc if n is indirect child (e.g. grandchild) of currently being visited node.
 // In this case parentLoc is the loc of n's direct parent.
-const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n,
-                                                          const loc_t *parentLoc) {
+const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const loc_t *parentLoc) {
     loc_t tmp{n, parentLoc};
     return &*cached_locs.insert(tmp).first;
 }
@@ -789,8 +788,7 @@ const P4::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
 // Returns program location of a child node n, given the context of the
 // currently being visited node.
 // Use to get loc if n is direct child of currently being visited node.
-const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n,
-                                                          const Visitor::Context *ctxt) {
+const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const Visitor::Context *ctxt) {
     for (auto *p = ctxt; p; p = p->parent)
         if (p->node == n) return getLoc(p);
     auto rv = getLoc(ctxt);

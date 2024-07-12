@@ -500,7 +500,6 @@ class AllDefinitions : public IHasDbPrint {
 
 class ComputeWriteSet : public Inspector, public IHasDbPrint {
  public:
-
     explicit ComputeWriteSet(AllDefinitions *allDefinitions)
         : allDefinitions(allDefinitions),
           currentDefinitions(nullptr),
