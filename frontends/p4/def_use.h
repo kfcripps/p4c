@@ -570,7 +570,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     /// Creates new visitor, but with same underlying data structures.
     /// Needed to visit some program fragments repeatedly.
     ComputeWriteSet(const ComputeWriteSet *source, ProgramPoint context, Definitions *definitions,
-        std::set<loc_t> &cached_locs)
+                    std::set<loc_t> &cached_locs)
         : allDefinitions(source->allDefinitions),
           currentDefinitions(definitions),
           returnedDefinitions(nullptr),
@@ -598,7 +598,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
     // Get writes of a node that is a direct child of the currently being visited node.
     const LocationSet *getWrites(const IR::Expression *expression) {
-        const loc_t& exprLoc = *getLoc(expression, getChildContext());
+        const loc_t &exprLoc = *getLoc(expression, getChildContext());
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
@@ -606,7 +606,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     // Get writes of a node that is not a direct child of the currently being visited node.
     // In this case, parentLoc is the loc of expression's direct parent node.
     const LocationSet *getWrites(const IR::Expression *expression, const loc_t *parentLoc) {
-        const loc_t& exprLoc = *getLoc(expression, parentLoc);
+        const loc_t &exprLoc = *getLoc(expression, parentLoc);
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
@@ -618,7 +618,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         LOG3(expression << dbp(expression) << " writes " << loc);
         const Context *ctx = getChildContext();
         BUG_CHECK(ctx->node == expression, "Expected ctx->node == expression.");
-        const loc_t& exprLoc = *getLoc(ctx);
+        const loc_t &exprLoc = *getLoc(ctx);
         if (auto it = writes.find(exprLoc); it != writes.end()) {
             BUG_CHECK(*it->second == *loc || expression->is<IR::Literal>(),
                       "Expression %1% write set already set", expression);
