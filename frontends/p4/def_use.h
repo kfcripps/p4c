@@ -23,7 +23,6 @@ limitations under the License.
 #include "ir/ir.h"
 #include "lib/alloc_trace.h"
 #include "lib/hash.h"
-// TODO: Remove?
 #include "lib/hvec_map.h"
 #include "lib/ordered_map.h"
 #include "lib/ordered_set.h"
@@ -601,12 +600,6 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
     // Use to get writes of a node that is a direct child of the currently being visited node.
     const LocationSet *getWrites(const IR::Expression *expression) {
-        // TODO: Remove dbprint
-        std::filebuf fb;
-        fb.open ("def_use.log",std::ios::out);
-        std::ostream os(&fb);
-        dbprint(os);
-        fb.close();
         const loc_t& exprLoc = *getLoc(expression, getChildContext());
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
@@ -615,12 +608,6 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     // Use to get writes of a node that is not a direct child of the currently being visited node.
     // In this case, parentLoc is the loc of expression's direct parent node.
     const LocationSet *getWrites(const IR::Expression *expression, const loc_t *parentLoc) {
-        // TODO: Remove dbprint
-        std::filebuf fb;
-        fb.open ("def_use.log",std::ios::out);
-        std::ostream os(&fb);
-        dbprint(os);
-        fb.close();
         const loc_t& exprLoc = *getLoc(expression, parentLoc);
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
