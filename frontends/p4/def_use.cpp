@@ -675,8 +675,8 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
     lhs = save;
     auto mi = MethodInstance::resolve(expression, storageMap->refMap, storageMap->typeMap);
     if (auto bim = mi->to<BuiltInMethod>()) {
-        // TODO: fix by passing bim loc_t ??
-        auto base = getWrites(bim->appliedTo);
+        const loc_t *methodLoc = getLoc(expression->method, getChildContext());
+        auto base = getWrites(bim->appliedTo, methodLoc);
         cstring name = bim->name.name;
         if (name == IR::Type_Header::setInvalid || name == IR::Type_Header::setValid) {
             // modifies only the valid field.
