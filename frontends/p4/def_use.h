@@ -492,14 +492,6 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
             if (!parent || !a.parent) return parent != nullptr;
             return *parent < *a.parent;
         }
-        // TODO: Not needed?
-        template <class T>
-        const T *find() const {
-            for (auto *p = this; p; p = p->parent) {
-                if (auto *t = p->node->to<T>()) return t;
-            }
-            return nullptr;
-        }
     };
 
     explicit ComputeWriteSet(AllDefinitions *allDefinitions)
@@ -609,7 +601,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
     // Use to get writes of a node that is a direct child of the currently being visited node.
     const LocationSet *getWrites(const IR::Expression *expression) {
-        // TODO: Should it be getChildContext()?
+        // TODO: Remove dbprint
         std::filebuf fb;
         fb.open ("def_use.log",std::ios::out);
         std::ostream os(&fb);
@@ -623,7 +615,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     // Use to get writes of a node that is not a direct child of the currently being visited node.
     // In this case, parentLoc is the loc of expression's direct parent node.
     const LocationSet *getWrites(const IR::Expression *expression, const loc_t *parentLoc) {
-        // TODO: Should it be getChildContext()?
+        // TODO: Remove dbprint
         std::filebuf fb;
         fb.open ("def_use.log",std::ios::out);
         std::ostream os(&fb);
@@ -638,7 +630,6 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         CHECK_NULL(expression);
         CHECK_NULL(loc);
         LOG3(expression << dbp(expression) << " writes " << loc);
-        // TODO: Should it be getChildContext()?
         const loc_t& exprLoc = *getLoc(getChildContext());
         if (auto it = writes.find(exprLoc); it != writes.end()) {
             BUG_CHECK(*it->second == *loc || expression->is<IR::Literal>(),

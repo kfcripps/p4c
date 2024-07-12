@@ -730,7 +730,6 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
 
     auto result = LocationSet::empty;
     // For all methods out/inout arguments are written
-    // const loc_t *argsLoc = getLoc(expression->arguments, getChildContext());
     for (auto p : *mi->substitution.getParametersInArgumentOrder()) {
         auto arg = mi->substitution.lookup(p);
         bool save = lhs;
