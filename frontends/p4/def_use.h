@@ -28,8 +28,6 @@ limitations under the License.
 #include "lib/ordered_set.h"
 #include "typeMap.h"
 
-#include <fstream>
-
 namespace P4 {
 
 class StorageFactory;
@@ -480,7 +478,7 @@ class AllDefinitions : public IHasDbPrint {
 
 class ComputeWriteSet : public Inspector, public IHasDbPrint {
  public:
-    // a location in the program.  Includes the context from the visitor, which needs to
+    // A location in the program. Includes the context from the visitor, which needs to
     // be copied out of the Visitor::Context objects, as they are allocated on the stack and
     // will become invalid as the IR traversal continues
     struct loc_t {
@@ -562,7 +560,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     const StorageMap *storageMap;
     /// if true we are processing an expression on the lhs of an assignment
     bool lhs;
-    /// For each expression the location set it writes
+    /// For each program location the location set it writes
     ordered_map<loc_t, const LocationSet *> writes;
     bool virtualMethod;  /// True if we are analyzing a virtual method
     AllocTrace memuse;
@@ -598,14 +596,14 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     Definitions *getDefinitionsAfter(const IR::ParserState *state);
     bool setDefinitions(Definitions *defs, const IR::Node *who = nullptr, bool overwrite = false);
     ProgramPoint getProgramPoint(const IR::Node *node = nullptr) const;
-    // Use to get writes of a node that is a direct child of the currently being visited node.
+    // Get writes of a node that is a direct child of the currently being visited node.
     const LocationSet *getWrites(const IR::Expression *expression) {
         const loc_t& exprLoc = *getLoc(expression, getChildContext());
         auto result = ::get(writes, exprLoc);
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
     }
-    // Use to get writes of a node that is not a direct child of the currently being visited node.
+    // Get writes of a node that is not a direct child of the currently being visited node.
     // In this case, parentLoc is the loc of expression's direct parent node.
     const LocationSet *getWrites(const IR::Expression *expression, const loc_t *parentLoc) {
         const loc_t& exprLoc = *getLoc(expression, parentLoc);
@@ -613,11 +611,14 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
         BUG_CHECK(result != nullptr, "No location set known for %1%", expression);
         return result;
     }
+    // Register writes of expression, which is expected to be the currently visited node.
     void expressionWrites(const IR::Expression *expression, const LocationSet *loc) {
         CHECK_NULL(expression);
         CHECK_NULL(loc);
         LOG3(expression << dbp(expression) << " writes " << loc);
-        const loc_t& exprLoc = *getLoc(getChildContext());
+        const Context *ctx = getChildContext();
+        BUG_CHECK(ctx->node == expression, "Expected ctx->node == expression.");
+        const loc_t& exprLoc = *getLoc(ctx);
         if (auto it = writes.find(exprLoc); it != writes.end()) {
             BUG_CHECK(*it->second == *loc || expression->is<IR::Literal>(),
                       "Expression %1% write set already set", expression);

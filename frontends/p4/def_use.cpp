@@ -763,6 +763,7 @@ void ComputeWriteSet::visitVirtualMethods(const IR::IndexedVector<IR::Declaratio
     }
 }
 
+// Returns program location of n, given the program location of n's direct parent.
 // Use to get loc if n is indirect child (e.g. grandchild) of currently being visited node.
 // In this case parentLoc is the loc of n's direct parent.
 const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
@@ -771,14 +772,17 @@ const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
     return &*cached_locs.insert(tmp).first;
 }
 
-// Use to get loc of currently being visited node
+// Returns program location given the context of the currently being visited node.
+// Use to get loc of currently being visited node.
 const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
     if (!ctxt) return nullptr;
     loc_t tmp{ctxt->node, getLoc(ctxt->parent)};
     return &*cached_locs.insert(tmp).first;
 }
 
-// Use to get loc if n is direct child of currently being visited node
+// Returns program location of a child node n, given the context of the
+// currently being visited node.
+// Use to get loc if n is direct child of currently being visited node.
 const P4::ComputeWriteSet::loc_t *ComputeWriteSet::getLoc(
     const IR::Node *n, const Visitor::Context *ctxt) {
     for (auto *p = ctxt; p; p = p->parent)
