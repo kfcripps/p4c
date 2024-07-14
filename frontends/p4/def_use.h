@@ -362,12 +362,6 @@ struct hash<P4::loc_t> {
 }  // namespace std
 
 namespace Util {
-
-template <>
-struct Hasher<P4::loc_t> {
-    size_t operator()(const P4::loc_t &loc) const { return loc.hash(); }
-};
-
 template <>
 struct Hasher<P4::ProgramPoint> {
     size_t operator()(const P4::ProgramPoint &p) const { return p.hash(); }
@@ -515,7 +509,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
           storageMap(allDefinitions->storageMap),
           lhs(false),
           virtualMethod(false),
-          cached_locs(*new absl::flat_hash_set<loc_t, Util::Hash>) {
+          cached_locs(*new std::unordered_set<loc_t>) {
         CHECK_NULL(allDefinitions);
         visitDagOnce = false;
     }
@@ -586,7 +580,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     /// Creates new visitor, but with same underlying data structures.
     /// Needed to visit some program fragments repeatedly.
     ComputeWriteSet(const ComputeWriteSet *source, ProgramPoint context, Definitions *definitions,
-                    absl::flat_hash_set<loc_t, Util::Hash> &cached_locs)
+                    std::unordered_set<loc_t> &cached_locs)
         : allDefinitions(source->allDefinitions),
           currentDefinitions(definitions),
           returnedDefinitions(nullptr),
@@ -664,7 +658,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     }
 
  private:
-    absl::flat_hash_set<loc_t, Util::Hash> &cached_locs;
+    // TODO: Make absl::flat_hash_set instead?
+    std::unordered_set<loc_t> &cached_locs;
 };
 
 }  // namespace P4
