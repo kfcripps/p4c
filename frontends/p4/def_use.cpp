@@ -844,31 +844,38 @@ bool ComputeWriteSet::preorder(const IR::P4Parser *parser) {
 
 bool ComputeWriteSet::preorder(const IR::P4Control *control) {
     LOG3("CWS Visiting " << dbp(control));
-    auto startPoint = ProgramPoint(control);
-    enterScope(control->getApplyParameters(), &control->controlLocals, startPoint);
+    ProgramPoint parentContext = callingContext;
+    callingContext = getProgramPoint(control);
+    enterScope(control->getApplyParameters(), &control->controlLocals, callingContext);
     exitDefinitions = new Definitions();
     returnedDefinitions = new Definitions();
     visitVirtualMethods(control->controlLocals);
     visit(control->body);
     auto returned = currentDefinitions->joinDefinitions(returnedDefinitions);
     auto exited = returned->joinDefinitions(exitDefinitions);
-    return setDefinitions(exited, control->body, true);  // overwrite
+    bool result = setDefinitions(exited, control->body, true);  // overwrite
+    callingContext = parentContext;
+    return result;
 }
 
 bool ComputeWriteSet::preorder(const IR::IfStatement *statement) {
     LOG3("CWS Visiting " << dbp(statement));
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
+    ProgramPoint parentContext = callingContext;
+    callingContext = getProgramPoint();
     visit(statement->condition);
     auto cond = getWrites(statement->condition);
     // defs are the definitions after evaluating the condition
-    auto defs = currentDefinitions->writes(getProgramPoint(), cond);
+    auto defs = currentDefinitions->writes(callingContext, cond);
     (void)setDefinitions(defs, statement->condition, false);
     visit(statement->ifTrue);
-    auto result = currentDefinitions;
+    auto resultDefs = currentDefinitions;
     currentDefinitions = defs;
     if (statement->ifFalse != nullptr) visit(statement->ifFalse);
-    result = result->joinDefinitions(currentDefinitions);
-    return setDefinitions(result);
+    resultDefs = resultDefs->joinDefinitions(currentDefinitions);
+    bool result = setDefinitions(resultDefs);
+    callingContext = parentContext;
+    return result;
 }
 
 bool ComputeWriteSet::preorder(const IR::ForStatement *statement) {
@@ -936,6 +943,8 @@ bool ComputeWriteSet::preorder(const IR::ForInStatement *statement) {
 
 bool ComputeWriteSet::preorder(const IR::BlockStatement *statement) {
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
+    ProgramPoint parentContext = callingContext;
+    callingContext = getProgramPoint();
     std::unordered_set<const IR::Node*> visited;
     for (auto *c : statement->components) {
         // Visit each child component only once.
@@ -945,7 +954,9 @@ bool ComputeWriteSet::preorder(const IR::BlockStatement *statement) {
         visited.emplace(c);
     }
     // visit(statement->components, "components");
-    return setDefinitions(currentDefinitions);
+    bool result = setDefinitions(currentDefinitions);
+    callingContext = parentContext;
+    return result;
 }
 
 bool ComputeWriteSet::preorder(const IR::ReturnStatement *statement) {
