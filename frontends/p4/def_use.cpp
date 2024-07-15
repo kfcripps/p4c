@@ -1001,10 +1001,18 @@ bool ComputeWriteSet::preorder(const IR::SwitchStatement *statement) {
     auto save = currentDefinitions;
     auto result = new Definitions();
     bool seenDefault = false;
-    for (auto s : statement->cases) {
+    unsigned caseNum = 0;
+    for (auto *c : statement->cases) {
         currentDefinitions = save;
-        if (s->label->is<IR::DefaultExpression>()) seenDefault = true;
-        visit(s->statement);
+        if (c->label->is<IR::DefaultExpression>()) seenDefault = true;
+        if (c->statement) {
+            if (!currentDefinitions->isUnreachable())
+                visit(c->statement->to<IR::BlockStatement>()->components, "components");
+            // Allow overwriting as a switch statement's children may be equal.
+            // TODO: Consider adding a new flag to setDefinitions that just disables the
+            // ovverwriting assertion instead of doing the unnecessary overwrite.
+            setDefinitions(currentDefinitions, /*who*/ c->statement, /*overwrite*/ caseNum++ > 0);
+        }
         result = result->joinDefinitions(currentDefinitions);
     }
     auto table = TableApplySolver::isActionRun(statement->expression, storageMap->refMap,

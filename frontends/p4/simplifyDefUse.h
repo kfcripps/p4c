@@ -97,12 +97,12 @@ class SimplifyDefUse : public PassManager {
         // SimplifyDefUse needs the expression tree *not* to be a DAG,
         // because it keeps state in hash-maps indexed with PathExpressions.
         // This is achieved by Cloner.
-        passes.push_back(new Cloner());
+        // passes.push_back(new Cloner());
         if (!typeChecking) typeChecking = new TypeChecking(refMap, typeMap);
 
         auto repeated = new PassRepeated({typeChecking, new DoSimplifyDefUse(refMap, typeMap)});
         passes.push_back(repeated);
-        passes.push_back(new RemoveHidden());
+        // passes.push_back(new RemoveHidden());
         setName("SimplifyDefUse");
     }
 };
