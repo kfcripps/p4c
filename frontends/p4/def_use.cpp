@@ -638,9 +638,9 @@ bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
     visit(expression->select);
     expression->selectCases.visit_unique_children(*this);
     auto l = getWrites(expression->select);
-    const loc_t *selectCasesLoc = getLoc(&expression->selectCases, getChildContext());
+    // const loc_t *selectCasesLoc = getLoc(&expression->selectCases, getChildContext());
     for (auto *c : expression->selectCases) {
-        const loc_t *selectCaseLoc = getLoc(c, selectCasesLoc);
+        const loc_t *selectCaseLoc = getLoc(c, getChildContext());
         auto s = getWrites(c->keyset, selectCaseLoc);
         l = l->join(s);
     }
