@@ -23,8 +23,6 @@ limitations under the License.
 
 namespace P4 {
 
-
-
 using namespace literals;
 
 // internal name for header valid bit; used only locally
@@ -638,7 +636,7 @@ bool ComputeWriteSet::preorder(const IR::Mux *expression) {
 bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
     BUG_CHECK(!lhs, "%1%: unexpected in lhs", expression);
     visit(expression->select);
-    visit(&expression->selectCases);
+    expression->selectCases.visit_unique_children(*this);
     auto l = getWrites(expression->select);
     const loc_t *selectCasesLoc = getLoc(&expression->selectCases, getChildContext());
     for (auto *c : expression->selectCases) {
@@ -651,7 +649,7 @@ bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
 }
 
 bool ComputeWriteSet::preorder(const IR::ListExpression *expression) {
-    visit(expression->components, "components");
+    expression->components.visit_unique_children(*this);
     auto l = LocationSet::empty;
     for (auto c : expression->components) {
         auto cl = getWrites(c);
@@ -876,7 +874,7 @@ bool ComputeWriteSet::preorder(const IR::IfStatement *statement) {
 bool ComputeWriteSet::preorder(const IR::ForStatement *statement) {
     LOG3("CWS Visiting " << dbp(statement));
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
-    visit(statement->init, "init");
+    statement->init.visit_unique_children(*this);
 
     auto saveBreak = breakDefinitions;
     auto saveContinue = continueDefinitions;
@@ -894,7 +892,7 @@ bool ComputeWriteSet::preorder(const IR::ForStatement *statement) {
         (void)setDefinitions(exitDefs, statement->condition, true);
         visit(statement->body, "body");
         currentDefinitions = currentDefinitions->joinDefinitions(continueDefinitions);
-        visit(statement->updates, "updates");
+        statement->updates.visit_unique_children(*this);
         currentDefinitions = currentDefinitions->joinDefinitions(startDefs);
     } while (!(*startDefs == *currentDefinitions));
 
@@ -939,15 +937,6 @@ bool ComputeWriteSet::preorder(const IR::ForInStatement *statement) {
 bool ComputeWriteSet::preorder(const IR::BlockStatement *statement) {
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
     statement->components.visit_unique_children(*this);
-    // std::unordered_set<const IR::Node*> visited;
-    // for (auto *c : statement->components) {
-    //     // Visit each child component only once.
-    //     if (visited.find(c) != visited.end())
-    //         continue;
-    //     visit(c, "component");
-    //     visited.emplace(c);
-    // }
-    // visit(statement->components, "components");
     return setDefinitions(currentDefinitions);
 }
 
