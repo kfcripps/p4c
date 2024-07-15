@@ -936,7 +936,15 @@ bool ComputeWriteSet::preorder(const IR::ForInStatement *statement) {
 
 bool ComputeWriteSet::preorder(const IR::BlockStatement *statement) {
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
-    visit(statement->components, "components");
+    std::unordered_set<const IR::Node*> visited;
+    for (auto *c : statement->components) {
+        // Visit each child component only once.
+        if (visited.find(c) != visited.end())
+            continue;
+        visit(c, "component");
+        visited.emplace(c);
+    }
+    // visit(statement->components, "components");
     return setDefinitions(currentDefinitions);
 }
 
@@ -1007,6 +1015,8 @@ bool ComputeWriteSet::preorder(const IR::SwitchStatement *statement) {
         if (c->label->is<IR::DefaultExpression>()) seenDefault = true;
         if (c->statement) {
             if (!currentDefinitions->isUnreachable())
+                // TODO: Consider not visiting duplicate equal children at all
+                // (see preorder(IR::BlockStatement)).
                 visit(c->statement->to<IR::BlockStatement>()->components, "components");
             // Allow overwriting as a switch statement's children may be equal.
             // TODO: Consider adding a new flag to setDefinitions that just disables the
