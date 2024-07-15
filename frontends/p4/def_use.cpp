@@ -23,6 +23,8 @@ limitations under the License.
 
 namespace P4 {
 
+
+
 using namespace literals;
 
 // internal name for header valid bit; used only locally
@@ -936,14 +938,15 @@ bool ComputeWriteSet::preorder(const IR::ForInStatement *statement) {
 
 bool ComputeWriteSet::preorder(const IR::BlockStatement *statement) {
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
-    std::unordered_set<const IR::Node*> visited;
-    for (auto *c : statement->components) {
-        // Visit each child component only once.
-        if (visited.find(c) != visited.end())
-            continue;
-        visit(c, "component");
-        visited.emplace(c);
-    }
+    statement->components.visit_unique_children(*this);
+    // std::unordered_set<const IR::Node*> visited;
+    // for (auto *c : statement->components) {
+    //     // Visit each child component only once.
+    //     if (visited.find(c) != visited.end())
+    //         continue;
+    //     visit(c, "component");
+    //     visited.emplace(c);
+    // }
     // visit(statement->components, "components");
     return setDefinitions(currentDefinitions);
 }
