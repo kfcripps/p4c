@@ -633,6 +633,12 @@ bool ComputeWriteSet::preorder(const IR::Mux *expression) {
     return false;
 }
 
+bool ComputeWriteSet::preorder(const IR::SwitchCase *c) {
+    visit(c->statement);
+    // Do not visit c->label, as it cannot write anything.
+    return false;
+}
+
 bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
     BUG_CHECK(!lhs, "%1%: unexpected in lhs", expression);
     visit(expression->select);
@@ -1001,21 +1007,17 @@ bool ComputeWriteSet::preorder(const IR::SwitchStatement *statement) {
     auto save = currentDefinitions;
     auto result = new Definitions();
     bool seenDefault = false;
-    unsigned caseNum = 0;
+    std::unordered_set<const IR::Node*> visitedCases;
     for (auto *c : statement->cases) {
+        if (visitedCases.find(c) != visitedCases.end())
+            continue;
+
         currentDefinitions = save;
         if (c->label->is<IR::DefaultExpression>()) seenDefault = true;
-        if (c->statement) {
-            if (!currentDefinitions->isUnreachable())
-                // TODO: Consider not visiting duplicate equal children at all
-                // (see preorder(IR::BlockStatement)).
-                visit(c->statement->to<IR::BlockStatement>()->components, "components");
-            // Allow overwriting as a switch statement's children may be equal.
-            // TODO: Consider adding a new flag to setDefinitions that just disables the
-            // ovverwriting assertion instead of doing the unnecessary overwrite.
-            setDefinitions(currentDefinitions, /*who*/ c->statement, /*overwrite*/ caseNum++ > 0);
-        }
+        visit(c);
         result = result->joinDefinitions(currentDefinitions);
+
+        visitedCases.emplace(c);
     }
     auto table = TableApplySolver::isActionRun(statement->expression, storageMap->refMap,
                                                storageMap->typeMap);

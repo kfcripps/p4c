@@ -523,6 +523,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     bool preorder(const IR::ArrayIndex *expression) override;
     bool preorder(const IR::Operation_Binary *expression) override;
     bool preorder(const IR::Mux *expression) override;
+    bool preorder(const IR::SwitchCase *c) override;
     bool preorder(const IR::SelectExpression *expression) override;
     bool preorder(const IR::ListExpression *expression) override;
     bool preorder(const IR::Operation_Unary *expression) override;
