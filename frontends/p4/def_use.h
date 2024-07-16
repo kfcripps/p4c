@@ -523,7 +523,6 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     bool preorder(const IR::ArrayIndex *expression) override;
     bool preorder(const IR::Operation_Binary *expression) override;
     bool preorder(const IR::Mux *expression) override;
-    bool preorder(const IR::SwitchCase *c) override;
     bool preorder(const IR::SelectExpression *expression) override;
     bool preorder(const IR::ListExpression *expression) override;
     bool preorder(const IR::Operation_Unary *expression) override;
@@ -551,6 +550,7 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     bool preorder(const IR::ForStatement *statement) override;
     bool preorder(const IR::ForInStatement *statement) override;
     bool preorder(const IR::BlockStatement *statement) override;
+    bool preorder(const IR::SwitchCase *c) override;
     bool preorder(const IR::SwitchStatement *statement) override;
     bool preorder(const IR::EmptyStatement *statement) override;
     bool preorder(const IR::MethodCallStatement *statement) override;

@@ -633,18 +633,11 @@ bool ComputeWriteSet::preorder(const IR::Mux *expression) {
     return false;
 }
 
-bool ComputeWriteSet::preorder(const IR::SwitchCase *c) {
-    visit(c->statement);
-    // Do not visit c->label, as it cannot write anything.
-    return false;
-}
-
 bool ComputeWriteSet::preorder(const IR::SelectExpression *expression) {
     BUG_CHECK(!lhs, "%1%: unexpected in lhs", expression);
     visit(expression->select);
     expression->selectCases.visit_unique_children(*this);
     auto l = getWrites(expression->select);
-    // const loc_t *selectCasesLoc = getLoc(&expression->selectCases, getChildContext());
     for (auto *c : expression->selectCases) {
         const loc_t *selectCaseLoc = getLoc(c, getChildContext());
         auto s = getWrites(c->keyset, selectCaseLoc);
@@ -997,6 +990,12 @@ bool ComputeWriteSet::preorder(const IR::AssignmentStatement *statement) {
     return setDefinitions(defs);
 }
 
+bool ComputeWriteSet::preorder(const IR::SwitchCase *c) {
+    visit(c->statement);
+    // Do not visit c->label, as it cannot write anything.
+    return false;
+}
+
 bool ComputeWriteSet::preorder(const IR::SwitchStatement *statement) {
     LOG3("CWS Visiting " << dbp(statement));
     if (currentDefinitions->isUnreachable()) return setDefinitions(currentDefinitions);
@@ -1007,10 +1006,9 @@ bool ComputeWriteSet::preorder(const IR::SwitchStatement *statement) {
     auto save = currentDefinitions;
     auto result = new Definitions();
     bool seenDefault = false;
-    std::unordered_set<const IR::Node*> visitedCases;
+    std::unordered_set<const IR::Node *> visitedCases;
     for (auto *c : statement->cases) {
-        if (visitedCases.find(c) != visitedCases.end())
-            continue;
+        if (visitedCases.find(c) != visitedCases.end()) continue;
 
         currentDefinitions = save;
         if (c->label->is<IR::DefaultExpression>()) seenDefault = true;
