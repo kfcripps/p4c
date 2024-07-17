@@ -39,6 +39,9 @@ class LocationSet;
 struct loc_t {
     const IR::Node *node;
     const loc_t *parent;
+
+    loc_t(const IR::Node *node, const loc_t *parent) : node(node), parent(parent) {}
+
     bool operator==(const loc_t &a) const {
         if (node != a.node) return false;
         if (parent == a.parent) return true;
