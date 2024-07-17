@@ -777,16 +777,14 @@ std::size_t P4::loc_t::hash() const {
 // Use to get loc if n is indirect child (e.g. grandchild) of currently being visited node.
 // In this case parentLoc is the loc of n's direct parent.
 const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const loc_t *parentLoc) {
-    loc_t tmp{n, parentLoc};
-    return &*cached_locs.insert(tmp).first;
+    return &*cached_locs.emplace(n, parentLoc).first;
 }
 
 // Returns program location given the context of the currently being visited node.
 // Use to get loc of currently being visited node.
 const P4::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
     if (!ctxt) return nullptr;
-    loc_t tmp{ctxt->node, getLoc(ctxt->parent)};
-    return &*cached_locs.insert(tmp).first;
+    return &*cached_locs.emplace(ctxt->node, getLoc(ctxt->parent)).first;
 }
 
 // Returns program location of a child node n, given the context of the
@@ -795,9 +793,7 @@ const P4::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
 const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const Visitor::Context *ctxt) {
     for (auto *p = ctxt; p; p = p->parent)
         if (p->node == n) return getLoc(p);
-    auto rv = getLoc(ctxt);
-    loc_t tmp{n, rv};
-    return &*cached_locs.insert(tmp).first;
+    return &*cached_locs.emplace(n, getLoc(ctxt)).first;
 }
 
 // Symbolic execution of the parser
