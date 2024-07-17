@@ -715,7 +715,7 @@ bool ComputeWriteSet::preorder(const IR::MethodCallExpression *expression) {
         LOG3("Analyzing callees of " << expression << DBPrint::Brief << callees << DBPrint::Reset
                                      << indent);
         ProgramPoint pt(callingContext, expression);
-        ComputeWriteSet cw(this, pt, currentDefinitions, cached_locs);
+        ComputeWriteSet cw(this, pt, currentDefinitions, cached_locs, cached_loc_hashes);
         cw.setCalledBy(this);
         for (auto c : callees) (void)c->getNode()->apply(cw);
         currentDefinitions = cw.currentDefinitions;
@@ -764,16 +764,25 @@ void ComputeWriteSet::visitVirtualMethods(const IR::IndexedVector<IR::Declaratio
 }
 
 std::size_t P4::loc_t::hash() const {
-    if (!parent) return Util::Hash{}(node->id);
+    auto it = cached_loc_hashes.find(this);
+    if (it != cached_loc_hashes.end())
+        return it->second;
 
-    return Util::Hash{}(node->id, parent->hash());
+    std::size_t h;
+    if (!parent)
+        h = Util::Hash{}(node->id);
+    else
+        h = Util::Hash{}(node->id, parent->hash());
+
+    cached_loc_hashes.emplace(this, h);
+    return h;
 }
 
 // Returns program location of n, given the program location of n's direct parent.
 // Use to get loc if n is indirect child (e.g. grandchild) of currently being visited node.
 // In this case parentLoc is the loc of n's direct parent.
 const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const loc_t *parentLoc) {
-    loc_t tmp{n, parentLoc};
+    loc_t tmp{n, parentLoc, cached_loc_hashes};
     return &*cached_locs.insert(tmp).first;
 }
 
@@ -781,7 +790,7 @@ const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const loc_t *parentL
 // Use to get loc of currently being visited node.
 const P4::loc_t *ComputeWriteSet::getLoc(const Visitor::Context *ctxt) {
     if (!ctxt) return nullptr;
-    loc_t tmp{ctxt->node, getLoc(ctxt->parent)};
+    loc_t tmp{ctxt->node, getLoc(ctxt->parent), cached_loc_hashes};
     return &*cached_locs.insert(tmp).first;
 }
 
@@ -792,7 +801,7 @@ const P4::loc_t *ComputeWriteSet::getLoc(const IR::Node *n, const Visitor::Conte
     for (auto *p = ctxt; p; p = p->parent)
         if (p->node == n) return getLoc(p);
     auto rv = getLoc(ctxt);
-    loc_t tmp{n, rv};
+    loc_t tmp{n, rv, cached_loc_hashes};
     return &*cached_locs.insert(tmp).first;
 }
 
@@ -821,7 +830,7 @@ bool ComputeWriteSet::preorder(const IR::P4Parser *parser) {
         // but we use the same data structures
         ProgramPoint pt(state);
         currentDefinitions = allDefinitions->getDefinitions(pt);
-        ComputeWriteSet cws(this, pt, currentDefinitions, cached_locs);
+        ComputeWriteSet cws(this, pt, currentDefinitions, cached_locs, cached_loc_hashes);
         cws.setCalledBy(this);
         (void)state->apply(cws);
 

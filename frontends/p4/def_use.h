@@ -39,6 +39,7 @@ class LocationSet;
 struct loc_t {
     const IR::Node *node;
     const loc_t *parent;
+    hvec_map<const loc_t *, std::size_t> &cached_loc_hashes;
     bool operator==(const loc_t &a) const {
         if (node != a.node) return false;
         if (parent == a.parent) return true;
@@ -505,7 +506,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
           storageMap(allDefinitions->storageMap),
           lhs(false),
           virtualMethod(false),
-          cached_locs(*new std::unordered_set<loc_t>) {
+          cached_locs(*new std::unordered_set<loc_t>),
+          cached_loc_hashes(*new hvec_map<const loc_t *, std::size_t>) {
         CHECK_NULL(allDefinitions);
         visitDagOnce = false;
     }
@@ -576,7 +578,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
     /// Creates new visitor, but with same underlying data structures.
     /// Needed to visit some program fragments repeatedly.
     ComputeWriteSet(const ComputeWriteSet *source, ProgramPoint context, Definitions *definitions,
-                    std::unordered_set<loc_t> &cached_locs)
+                    std::unordered_set<loc_t> &cached_locs,
+                    hvec_map<const loc_t *, std::size_t> &cached_loc_hashes)
         : allDefinitions(source->allDefinitions),
           currentDefinitions(definitions),
           returnedDefinitions(nullptr),
@@ -587,7 +590,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
           storageMap(source->storageMap),
           lhs(false),
           virtualMethod(false),
-          cached_locs(cached_locs) {
+          cached_locs(cached_locs),
+          cached_loc_hashes(cached_loc_hashes) {
         visitDagOnce = false;
     }
     void visitVirtualMethods(const IR::IndexedVector<IR::Declaration> &locals);
@@ -656,6 +660,8 @@ class ComputeWriteSet : public Inspector, public IHasDbPrint {
  private:
     // TODO: Make absl::node_hash_set instead?
     std::unordered_set<loc_t> &cached_locs;
+    // Memoized loc_t* hashes
+    hvec_map<const loc_t *, std::size_t> &cached_loc_hashes;
 };
 
 }  // namespace P4
