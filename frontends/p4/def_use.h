@@ -40,6 +40,11 @@ struct loc_t {
     const IR::Node *node;
     const loc_t *parent;
     hvec_map<const loc_t *, std::size_t> &cached_loc_hashes;
+
+    loc_t(const IR::Node *node, const loc_t *parent,
+        hvec_map<const loc_t *, std::size_t> &cached_loc_hashes) :
+        node(node), parent(parent), cached_loc_hashes(cached_loc_hashes) {}
+
     bool operator==(const loc_t &a) const {
         if (node != a.node) return false;
         if (parent == a.parent) return true;
