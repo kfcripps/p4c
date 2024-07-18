@@ -26,6 +26,7 @@ set (GTEST_UNITTEST_SOURCES
   gtest/constant_folding.cpp
   gtest/cstring.cpp
   gtest/diagnostics.cpp
+  gtest/dontcareargs.cpp
   gtest/dumpjson.cpp
   gtest/enumerator_test.cpp
   gtest/equiv_test.cpp
