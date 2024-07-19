@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "frontends/common/parseInput.h"
-#include "frontends/p4/typeChecking/typeChecker.h"
 #include "frontends/p4/frontend.h"
 #include "frontends/p4/dontcareArgs.h"
 #include "helpers.h"
@@ -11,9 +10,7 @@ using namespace P4;
 
 namespace Test {
 
-struct P4CFrontend : P4CTest {
-    void addPasses(std::initializer_list<PassManager::VisitorRef> passes) { pm.addPasses(passes); }
-
+struct RemoveDontcareArgsTest : P4CTest {
     const IR::Node *parseAndProcess(std::string program) {
         const auto *pgm = P4::parseP4String(program, CompilerOptions::FrontendVersion::P4_16);
         EXPECT_TRUE(pgm);
@@ -21,22 +18,12 @@ struct P4CFrontend : P4CTest {
         if (!pgm) {
             return nullptr;
         }
-        return pgm->apply(pm);
+
+        P4::TypeMap typeMap;
+        RemoveDontcareArgs rdca(&typeMap);
+
+        return pgm->apply(rdca);
     }
-
-    PassManager pm;
-};
-
-// Tests for RemoveDontcareArgsTest
-struct RemoveDontcareArgsTest : P4CFrontend {
-    RemoveDontcareArgsTest() {
-        addPasses({
-            new P4::TypeInference(&typeMap),
-            new P4::RemoveDontcareArgs(&typeMap)
-        });
-    }
-
-    P4::TypeMap typeMap;
 };
 
 class CollectActionAndControlLocals : public Inspector {
