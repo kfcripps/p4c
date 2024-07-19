@@ -26,7 +26,6 @@ set (GTEST_UNITTEST_SOURCES
   gtest/constant_folding.cpp
   gtest/cstring.cpp
   gtest/diagnostics.cpp
-  gtest/dontcareargs.cpp
   gtest/dumpjson.cpp
   gtest/enumerator_test.cpp
   gtest/equiv_test.cpp
@@ -48,6 +47,7 @@ set (GTEST_UNITTEST_SOURCES
   gtest/ordered_set.cpp
   gtest/parser_unroll.cpp
   gtest/p4runtime.cpp
+  gtest/remove_dontcare_args_test.cpp
   gtest/source_file_test.cpp
   gtest/strength_reduction.cpp
   gtest/string_map.cpp
