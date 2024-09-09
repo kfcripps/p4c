@@ -2,11 +2,8 @@ parser Parser1() {
     @name("Parser1.l") bit<8> l_0;
     state start {
         l_0 = 8w0;
-        transition start_0;
-    }
-    state start_0 {
         transition select(l_0) {
-            8w2: start_0;
+            8w2: start;
             default: accept;
         }
     }

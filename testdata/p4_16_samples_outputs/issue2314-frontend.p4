@@ -33,25 +33,21 @@ parser MyParser(packet_in b, out h hdr, inout m meta, inout standard_metadata_t 
     }
     state L3_start {
         l3_etherType = hdr.ether.etherType;
-        transition L3_start_0;
-    }
-    state L3_start_0 {
         transition select(l3_etherType) {
             16w0x800: L3_h0;
             16w0x8100: L3_i;
-            default: start_1;
+            default: start_0;
         }
     }
     state L3_h0 {
         b.extract<H>(hdr.h);
-        transition start_1;
+        transition start_0;
     }
     state L3_i {
         b.extract<I>(hdr.i);
-        l3_etherType = hdr.i.etherType;
-        transition L3_start_0;
+        transition L3_start;
     }
-    state start_1 {
+    state start_0 {
         transition accept;
     }
 }

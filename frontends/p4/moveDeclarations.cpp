@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include "moveDeclarations.h"
+#include "frontends/p4/parserCallGraph.h"
 
 namespace P4 {
 
@@ -115,29 +116,15 @@ const IR::Node *MoveInitializers::preorder(IR::P4Parser *parser) {
         // If this is the case, then the parser's decl initializers cannot be moved
         // to the start state. A new start state that is never looped back to must
         // be inserted at the head of the graph.
-        for (const auto *state : parser->states) {
-            const auto *selectExpr = state->selectExpression;
-            if (selectExpr == nullptr) {
-                // implicit reject transition
-            } else if (selectExpr->is<IR::SelectExpression>()) {
-                // select expression
-                for (const auto *selectCase : selectExpr->to<IR::SelectExpression>()->selectCases) {
-                    if (selectCase->state->path->name == IR::ParserState::start) {
-                        loopsBackToStart = true;
-                        break;
-                    }
-                }
-            } else if (selectExpr->is<IR::PathExpression>()) {
-                // direct transition
-                const auto *pathExpr = selectExpr->to<IR::PathExpression>();
-                if (pathExpr->path->name == IR::ParserState::start) loopsBackToStart = true;
-            }
-
-            if (loopsBackToStart) break;
-        }
+        ParserCallGraph transitions("transitions");
+        ComputeParserCG pcg(refMap, &transitions);
+        parser->apply(pcg);
+        const auto *start = parser->states.getDeclaration(
+            IR::ParserState::start)->to<IR::ParserState>();
+        loopsBackToStart = transitions.isCallee(start);
 
         newStartName = nameGen.newName(IR::ParserState::start.string_view());
-        oldStart = parser->states.getDeclaration(IR::ParserState::start)->to<IR::ParserState>();
+        oldStart = start;
         CHECK_NULL(oldStart);
     }
     return parser;

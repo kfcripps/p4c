@@ -26,29 +26,26 @@ struct m {
 }
 
 parser MyParser(packet_in b, out h hdr, inout m meta, inout standard_metadata_t std) {
-    @name("MyParser.l3.etherType") bit<16> l3_etherType;
     state start {
         b.extract<ethernet_t>(hdr.ether);
-        l3_etherType = hdr.ether.etherType;
-        transition L3_start_0;
+        transition L3_start;
     }
-    state L3_start_0 {
-        transition select(l3_etherType) {
+    state L3_start {
+        transition select(hdr.ether.etherType) {
             16w0x800: L3_h0;
             16w0x8100: L3_i;
-            default: start_1;
+            default: start_0;
         }
     }
     state L3_h0 {
         b.extract<H>(hdr.h);
-        transition start_1;
+        transition start_0;
     }
     state L3_i {
         b.extract<I>(hdr.i);
-        l3_etherType = hdr.i.etherType;
-        transition L3_start_0;
+        transition L3_start;
     }
-    state start_1 {
+    state start_0 {
         transition accept;
     }
 }
