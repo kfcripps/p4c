@@ -1395,11 +1395,11 @@ class FindUninitialized : public Inspector {
         lhs = false;  // slices on the LHS also read the data
         visit(expression->e0);
         visit(expression->e1);  // this might not be a constant (for a PlusSlice)
+        lhs = save;
         LOG3("FU Returned from " << expression);
         auto storage = getReads(expression->e0, true);
         reads(expression, storage);  // true even in LHS
         registerUses(expression);
-        lhs = save;
 
         hasUses.doneWatching();
         return false;
