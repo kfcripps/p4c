@@ -362,11 +362,12 @@ class FindUninitialized : public Inspector {
 
     // Info about a read or write of a given slice expression
     struct SliceInfo {
-        SliceInfo(const IR::AbstractSlice *slice) : slice(slice) {}
-        // Definitions at the point of this slice read or write
-        // Definitions *defs;
+        SliceInfo(const IR::AbstractSlice *slice, Definitions *defs)
+            : slice(slice), defs(defs) {}
         // The expression corresponding to the slice read or write
         const IR::AbstractSlice *slice;
+        // Definitions at the point of this slice read or write
+        Definitions *defs;
     };
 
     // Info about slice writes. SimplifyDefUse treats slice writes conservatively.
@@ -1080,15 +1081,16 @@ class FindUninitialized : public Inspector {
 
     // TODO: Take Definitions * as an argument?
     // Keeps track of which expression producers have uses in the given expression
-    void registerUses2(const IR::Expression *expression, bool reportUninitialized = true) {
+    void registerUses2(
+        const IR::Expression *expression, Definitions *defs,
+        bool reportUninitialized = true) {
         LOG3("FU Registering uses for '" << expression << "'");
         if (!isFinalRead(getContext(), expression)) {
             LOG3("Expression '" << expression << "' is not fully read. Returning...");
             return;
         }
 
-        auto currentDefinitions = getCurrentDefinitions();
-        if (currentDefinitions->isUnreachable()) {
+        if (defs->isUnreachable()) {
             LOG3("are not reachable. Returning...");
             return;
         }
@@ -1100,10 +1102,10 @@ class FindUninitialized : public Inspector {
         }
         LOG3("LocationSet for '" << expression << "' is <<" << read << ">>");
 
-        auto points = currentDefinitions->getPoints(*read);
+        auto points = defs->getPoints(*read);
 
         if (reportUninitialized && !lhs && points->containsBeforeStart() &&
-            hasUninitializedHeaderUnion(expression, currentDefinitions, read)) {
+            hasUninitializedHeaderUnion(expression, defs, read)) {
             // Do not report uninitialized values on the LHS.
             // This could happen if we are writing to an array element
             // with an unknown index.
@@ -1111,7 +1113,7 @@ class FindUninitialized : public Inspector {
             if (auto structType = type->to<IR::Type_StructLike>()) {
                 for (auto field : structType->fields) {
                     auto fieldLoc = read->getField(field->name);
-                    auto fieldPoints = currentDefinitions->getPoints(*fieldLoc);
+                    auto fieldPoints = defs->getPoints(*fieldLoc);
                     if (fieldPoints->containsBeforeStart()) {
                         warn(ErrorType::WARN_UNINITIALIZED_USE, "%1%.%2% may be uninitialized",
                              expression, field->name.toString());
@@ -1220,7 +1222,7 @@ class FindUninitialized : public Inspector {
         // All existing written slices of the same 'expression' also read 'result'.
         for (const auto &info : sliceWritesInfo[decl]) {
             reads(info.slice, result);
-            registerUses(info.slice /* , info.defs*/);
+            registerUses2(info.slice, info.defs);
         }
 
         reads(expression, result);
@@ -1500,7 +1502,7 @@ class FindUninitialized : public Inspector {
                 for (const auto &info : sliceWritesInfo[decl]) {
                     auto *storage = getReads(info.slice, true);
                     reads(info.slice, storage);  // true even in LHS
-                    registerUses(info.slice);
+                    registerUses2(info.slice, info.defs);
                 }
             }
 
@@ -1512,7 +1514,7 @@ class FindUninitialized : public Inspector {
         } else {
             if (const auto *pathExpr = expression->e0->to<IR::PathExpression>()) {
                 const auto *decl = refMap->getDeclaration(pathExpr->path, true);
-                sliceWritesInfo[decl].push_back(SliceInfo(expression));
+                sliceWritesInfo[decl].push_back(SliceInfo(expression, getCurrentDefinitions()));
             }
             reads(expression, LocationSet::empty);
         }
