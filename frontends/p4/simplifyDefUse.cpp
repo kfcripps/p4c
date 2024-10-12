@@ -78,6 +78,18 @@ class HasUses {
     HasUses() = default;
     void add(const ProgramPoints *points) {
         for (auto e : *points) {
+            for (const auto *node : e) {
+                if (!node) continue;
+                BUG_CHECK(
+                    node->is<IR::AssignmentStatement>(),
+                    "%1%: Expected AssignmentStatement.", node);
+
+                // const auto *assign = node->to<IR::AssignmentStatement>();
+                // if (const auto *slc = assign->left->to<IR::AbstractSlice>()) {
+                //     // TODO: Analyze written slices.
+                // }
+            }
+
             // skips overwritten slice statements
             if (tracker.overwrites(e)) continue;
 
