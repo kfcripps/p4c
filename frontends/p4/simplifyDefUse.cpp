@@ -1391,15 +1391,19 @@ class FindUninitialized : public Inspector {
                              << " for potential overwrites");
         }
 
+        if (!lhs) {
+            visit(expression->e0);
+            auto storage = getReads(expression->e0, true);
+            reads(expression, storage);  // true even in LHS
+            registerUses(expression);
+        } else {
+            reads(expression, LocationSet::empty);
+        }
         bool save = lhs;
         lhs = false;  // slices on the LHS also read the data
-        visit(expression->e0);
         visit(expression->e1);  // this might not be a constant (for a PlusSlice)
         lhs = save;
         LOG3("FU Returned from " << expression);
-        auto storage = getReads(expression->e0, true);
-        reads(expression, storage);  // true even in LHS
-        registerUses(expression);
 
         hasUses.doneWatching();
         return false;
