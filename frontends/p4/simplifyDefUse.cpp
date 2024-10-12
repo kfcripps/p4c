@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "simplifyDefUse.h"
 
+#include <unordered_map>
+
 #include "absl/container/flat_hash_set.h"
 #include "frontends/common/resolveReferences/referenceMap.h"
 #include "frontends/p4/def_use.h"
@@ -35,6 +37,7 @@ class HasUses {
     // in the program together with their use count
     absl::flat_hash_set<const IR::Node *, Util::Hash> used;
 
+    // TODO: Remove after adding RemoveRedundantSlices pass.
     class SliceTracker {
         const IR::Slice *trackedSlice = nullptr;
         bool active = false;
@@ -78,17 +81,17 @@ class HasUses {
     HasUses() = default;
     void add(const ProgramPoints *points) {
         for (auto e : *points) {
-            for (const auto *node : e) {
-                if (!node) continue;
-                BUG_CHECK(
-                    node->is<IR::AssignmentStatement>(),
-                    "%1%: Expected AssignmentStatement.", node);
+            // for (const auto *node : e) {
+            //     if (!node) continue;
+            //     BUG_CHECK(
+            //         node->is<IR::AssignmentStatement>(),
+            //         "%1%: Expected AssignmentStatement.", node);
 
-                // const auto *assign = node->to<IR::AssignmentStatement>();
-                // if (const auto *slc = assign->left->to<IR::AbstractSlice>()) {
-                //     // TODO: Analyze written slices.
-                // }
-            }
+            //     // const auto *assign = node->to<IR::AssignmentStatement>();
+            //     // if (const auto *slc = assign->left->to<IR::AbstractSlice>()) {
+            //     //     // TODO: Analyze written slices.
+            //     // }
+            // }
 
             // skips overwritten slice statements
             if (tracker.overwrites(e)) continue;
@@ -356,6 +359,26 @@ class FindUninitialized : public Inspector {
 
     HeaderDefinitions *headerDefs;
     bool reportInvalidHeaders = true;
+
+    // Info about a read or write of a given slice expression
+    struct SliceInfo {
+        SliceInfo(const IR::AbstractSlice *slice) : slice(slice) {}
+        // Definitions at the point of this slice read or write
+        // Definitions *defs;
+        // The expression corresponding to the slice read or write
+        const IR::AbstractSlice *slice;
+    };
+
+    // Info about slice writes. SimplifyDefUse treats slice writes conservatively.
+    // In other words, a write to a field slice does not clobber previous writes
+    // to either the whole field or slices of the same field, even if the slice fully
+    // covers previous slice(s) or the whole field. This is handled by the RemoveRedundantSlices
+    // pass.
+    std::unordered_map<const IR::IDeclaration *, std::vector<SliceInfo>> sliceWritesInfo;
+    // Info about slice reads. SimplifyDefUse treats slice reads conservatively.
+    // In other words, a read of a field slice is also considered a use of the whole field
+    // as well as a use of all previously written slices of the whole field.
+    std::unordered_map<const IR::IDeclaration *, std::vector<SliceInfo>> sliceReadsInfo;
 
     const LocationSet *getReads(const IR::Expression *expression, bool nonNull = false) const {
         const auto *result = ::P4::get(readLocations, expression);
@@ -1055,6 +1078,56 @@ class FindUninitialized : public Inspector {
         hasUses.add(points);
     }
 
+    // TODO: Take Definitions * as an argument?
+    // Keeps track of which expression producers have uses in the given expression
+    void registerUses2(const IR::Expression *expression, bool reportUninitialized = true) {
+        LOG3("FU Registering uses for '" << expression << "'");
+        if (!isFinalRead(getContext(), expression)) {
+            LOG3("Expression '" << expression << "' is not fully read. Returning...");
+            return;
+        }
+
+        auto currentDefinitions = getCurrentDefinitions();
+        if (currentDefinitions->isUnreachable()) {
+            LOG3("are not reachable. Returning...");
+            return;
+        }
+
+        const LocationSet *read = getReads(expression);
+        if (read == nullptr || read->isEmpty()) {
+            LOG3("No LocationSet for '" << expression << "'. Returning...");
+            return;
+        }
+        LOG3("LocationSet for '" << expression << "' is <<" << read << ">>");
+
+        auto points = currentDefinitions->getPoints(*read);
+
+        if (reportUninitialized && !lhs && points->containsBeforeStart() &&
+            hasUninitializedHeaderUnion(expression, currentDefinitions, read)) {
+            // Do not report uninitialized values on the LHS.
+            // This could happen if we are writing to an array element
+            // with an unknown index.
+            auto type = typeMap->getType(expression, true);
+            if (auto structType = type->to<IR::Type_StructLike>()) {
+                for (auto field : structType->fields) {
+                    auto fieldLoc = read->getField(field->name);
+                    auto fieldPoints = currentDefinitions->getPoints(*fieldLoc);
+                    if (fieldPoints->containsBeforeStart()) {
+                        warn(ErrorType::WARN_UNINITIALIZED_USE, "%1%.%2% may be uninitialized",
+                             expression, field->name.toString());
+                    }
+                }
+            } else if (type->is<IR::Type_Base>()) {
+                warn(ErrorType::WARN_UNINITIALIZED_USE, "%1% may be uninitialized", expression);
+            } else {
+                warn(ErrorType::WARN_UNINITIALIZED_USE, "%1% may not be completely initialized",
+                     expression);
+            }
+        }
+
+        hasUses.add(points);
+    }
+
     // Checks if header unions and header union stacks are initialized.
     // Unlike other StructLike types header unions are initialized
     // if only one member of the union is initialized.
@@ -1119,10 +1192,16 @@ class FindUninitialized : public Inspector {
     bool preorder(const IR::PathExpression *expression) override {
         LOG3("FU Visiting [" << expression->id << "]: " << expression);
         if (lhs) {
+            // TODO
+            // All previously written slices of the same field now read nothing.
+            const auto *decl = refMap->getDeclaration(expression->path, true);
+            for (const auto &info : sliceWritesInfo[decl]) reads(info.slice, LocationSet::empty);
+            sliceWritesInfo[decl].clear();
+
             reads(expression, LocationSet::empty);
             return false;
         }
-        auto decl = refMap->getDeclaration(expression->path, true);
+        auto *decl = refMap->getDeclaration(expression->path, true);
         LOG4("Declaration for path '" << expression->path << "' is " << Log::indent << Log::endl
                                       << decl << Log::unindent);
 
@@ -1136,6 +1215,14 @@ class FindUninitialized : public Inspector {
         LOG4("LocationSet for declaration " << Log::indent << Log::endl
                                             << decl << Log::unindent << Log::endl
                                             << "is <<" << result << ">>");
+
+        // TODO
+        // All existing written slices of the same 'expression' also read 'result'.
+        for (const auto &info : sliceWritesInfo[decl]) {
+            reads(info.slice, result);
+            registerUses(info.slice /* , info.defs*/);
+        }
+
         reads(expression, result);
         registerUses(expression);
         return false;
@@ -1404,11 +1491,29 @@ class FindUninitialized : public Inspector {
         }
 
         if (!lhs) {
+            // TODO:
+            // To be conservative, expression should also read
+            // the sliced PathExpression as well as all other slices
+            // of the same PathExpression.
+            if (const auto *pathExpr = expression->e0->to<IR::PathExpression>()) {
+                const auto *decl = refMap->getDeclaration(pathExpr->path, true);
+                for (const auto &info : sliceWritesInfo[decl]) {
+                    auto *storage = getReads(info.slice, true);
+                    reads(info.slice, storage);  // true even in LHS
+                    registerUses(info.slice);
+                }
+            }
+
+            // The slice expression also reads the sliced field.
             visit(expression->e0);
             auto storage = getReads(expression->e0, true);
             reads(expression, storage);  // true even in LHS
             registerUses(expression);
         } else {
+            if (const auto *pathExpr = expression->e0->to<IR::PathExpression>()) {
+                const auto *decl = refMap->getDeclaration(pathExpr->path, true);
+                sliceWritesInfo[decl].push_back(SliceInfo(expression));
+            }
             reads(expression, LocationSet::empty);
         }
         bool save = lhs;
