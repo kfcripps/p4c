@@ -80,6 +80,8 @@ class HasUses {
  public:
     HasUses() = default;
     void add(const ProgramPoints *points) {
+        LOG3("Adding points...");
+        points->dbprint(std::cout);
         for (auto e : *points) {
             // for (const auto *node : e) {
             //     if (!node) continue;
