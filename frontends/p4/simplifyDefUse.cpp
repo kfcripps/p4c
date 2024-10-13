@@ -94,7 +94,7 @@ class HasUses {
             // }
 
             // skips overwritten slice statements
-            if (tracker.overwrites(e)) continue;
+            // if (tracker.overwrites(e)) continue;
 
             auto last = e.last();
             if (last != nullptr) {
@@ -1483,14 +1483,14 @@ class FindUninitialized : public Inspector {
     bool preorder(const IR::AbstractSlice *expression) override {
         LOG3("FU Visiting [" << expression->id << "]: " << expression);
 
-        auto *slice_stmt = findContext<IR::AssignmentStatement>();
-        auto *slice = expression->to<IR::Slice>();
-        if (slice_stmt != nullptr && lhs && slice) {
-            // track this slice statement
-            hasUses.watchForOverwrites(slice);
-            LOG4("Tracking " << dbp(slice_stmt) << " " << slice_stmt
-                             << " for potential overwrites");
-        }
+        // auto *slice_stmt = findContext<IR::AssignmentStatement>();
+        // auto *slice = expression->to<IR::Slice>();
+        // if (slice_stmt != nullptr && lhs && slice) {
+        //     // track this slice statement
+        //     hasUses.watchForOverwrites(slice);
+        //     LOG4("Tracking " << dbp(slice_stmt) << " " << slice_stmt
+        //                      << " for potential overwrites");
+        // }
 
         if (!lhs) {
             // TODO:
@@ -1524,7 +1524,7 @@ class FindUninitialized : public Inspector {
         lhs = save;
         LOG3("FU Returned from " << expression);
 
-        hasUses.doneWatching();
+        // hasUses.doneWatching();
         return false;
     }
 
