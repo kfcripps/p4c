@@ -487,6 +487,9 @@ class FindUninitialized : public Inspector {
                 if (storage == nullptr) continue;
 
                 const auto *points = defs->getPoints(LocationSet(storage));
+                // TODO: Account for previous writes to slices of param p here.
+                // If found, must add their uses as well below.
+                // Handles case of: out bit<n> p; p[hi:lo] = rhs;
                 hasUses.add(points);
                 if (typeMap->typeIsEmpty(storage->type)) continue;
                 // Check uninitialized non-headers (headers can be invalid).
