@@ -1227,7 +1227,7 @@ class FindUninitialized : public Inspector {
         // All existing written slices of the same 'expression' also read 'result'.
         for (const auto &info : sliceWritesInfo[decl]) {
             reads(info.slice, result);
-            registerUses2(info.slice, info.defs);
+            registerUses(info.slice);
         }
 
         reads(expression, result);
@@ -1499,22 +1499,12 @@ class FindUninitialized : public Inspector {
 
         if (!lhs) {
             // TODO:
-            // To be conservative, expression should also read
-            // the sliced PathExpression as well as all other slices
-            // of the same PathExpression.
-            if (const auto *pathExpr = expression->e0->to<IR::PathExpression>()) {
-                const auto *decl = refMap->getDeclaration(pathExpr->path, true);
-                for (const auto &info : sliceWritesInfo[decl]) {
-                    auto *storage = getReads(info.slice, true);
-                    reads(info.slice, storage);  // true even in LHS
-                    registerUses2(info.slice, info.defs);
-                }
-            }
 
-            // The slice expression also reads the sliced field.
+            // The slice expression also reads the sliced field (which implies
+            // also reading all other slices of the same PathExpression).
             visit(expression->e0);
             auto storage = getReads(expression->e0, true);
-            reads(expression, storage);  // true even in LHS
+            reads(expression, storage);
             registerUses(expression);
         } else {
             if (const auto *pathExpr = expression->e0->to<IR::PathExpression>()) {
