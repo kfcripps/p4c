@@ -11,9 +11,9 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="struct_p4_1_1_util_1_1_hasher_3_01cstring_01_4.html" target="_top" xlink:title=" ">
+<g id="a_Node000000"><a xlink:href="namespace_p4_1_1_d_p_d_k.html#struct_p4_1_1_d_p_d_k_1_1extern_attributes" target="_top" xlink:title=" ">
 <polygon fill="white" stroke="#666666" points="148,-19 0,-19 0,0 148,0 148,-19"/>
-<text text-anchor="middle" x="74" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">P4::Util::Hasher&lt; cstring &gt;</text>
+<text text-anchor="middle" x="74" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">P4::DPDK::externAttributes</text>
 </a>
 </g>
 </g>
