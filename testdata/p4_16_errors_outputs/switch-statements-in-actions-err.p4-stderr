@@ -1,0 +1,6 @@
+switch-statements-in-actions-err.p4(5): [--Wwarn=mismatch] warning: 8w1: constant expression in switch
+        switch (x) {
+                ^
+switch-statements-in-actions-err.p4(5): error: SwitchStatement: switch statements not supported in actions on this target
+        switch (x) {
+        ^^^^^^

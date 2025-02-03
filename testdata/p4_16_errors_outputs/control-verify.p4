@@ -1,4 +1,4 @@
-error {
+error{
     Oops
 }
 #include <core.p4>
