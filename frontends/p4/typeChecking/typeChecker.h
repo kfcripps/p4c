@@ -108,6 +108,8 @@ class TypeInferenceBase : public virtual Visitor, public ResolutionContext {
         return typeMap->isLeftValue(expression) || expression->is<IR::DefaultExpression>();
     }
     void setCompileTimeConstant(const IR::Expression *expression) {
+        std::cout << "Setting expr as compile-time constant: "
+                  << expression->toString() << std::endl;
         typeMap->setCompileTimeConstant(expression);
     }
     bool isCompileTimeConstant(const IR::Expression *expression) const {
