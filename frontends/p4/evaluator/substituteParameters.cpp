@@ -24,6 +24,19 @@ const IR::Node *SubstituteParameters::postorder(IR::This *t) {
     return result;
 }
 
+// Replace srcInfo of all nodes with the given srcInfo.
+class SourceInfoReplacer : public P4::Transform {
+    const Util::SourceInfo si;
+
+ public:
+    explicit SourceInfoReplacer(const Util::SourceInfo si) : si(si) {}
+
+    const P4::IR::Node *preorder(P4::IR::Node *node) override {
+        node->srcInfo = si;
+        return node;
+    }
+};
+
 const IR::Node *SubstituteParameters::postorder(IR::PathExpression *expr) {
     auto decl =
         (refMap ? refMap->getDeclaration(expr->path, true) : getDeclaration(expr->path, true));
@@ -33,9 +46,13 @@ const IR::Node *SubstituteParameters::postorder(IR::PathExpression *expr) {
         LOG1("Replaced " << dbp(expr) << " with " << dbp(value));
         // Return a new Expression with source info of the PathExpression
         // being substituted.
-        auto *cloned = value->clone();
-        cloned->srcInfo = expr->srcInfo;
-        return cloned;
+        // TODO: This doesn't seem to work for some reason.
+        SourceInfoReplacer sir(expr->srcInfo);
+        const auto *newNode = value->apply(sir);
+        return newNode;
+        // auto *cloned = value->clone();
+        // cloned->srcInfo = expr->srcInfo;
+        // return cloned;
     }
 
     // Path expressions always need to be cloned.
