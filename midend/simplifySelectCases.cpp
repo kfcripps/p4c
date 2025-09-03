@@ -21,13 +21,13 @@ limitations under the License.
 
 namespace P4 {
 
-bool isCompileTimeConstant(const IR::Expression* expr, const TypeMap* typeMap) {
+bool isCompileTimeConstant(const IR::Expression *expr, const TypeMap *typeMap) {
     if (expr->is<IR::Constant>()) return true;
     if (expr->is<IR::BoolLiteral>()) return true;
 
     if (auto list = expr->to<IR::ListExpression>()) {
-        const auto& components = list->components;
-        return std::all_of(components.begin(), components.end(), [&](const IR::Expression* e) {
+        const auto &components = list->components;
+        return std::all_of(components.begin(), components.end(), [&](const IR::Expression *e) {
             return isCompileTimeConstant(e, typeMap);
         });
     }
@@ -82,17 +82,16 @@ const IR::Node *DoSimplifySelectCases::preorder(IR::SelectExpression *expression
         if (requireConstants) checkSimpleConstant(c->keyset);
     }
 
-    bool allConst = std::all_of(cases.begin(), cases.end(), [&](const IR::SelectCase* c) {
+    bool allConst = std::all_of(cases.begin(), cases.end(), [&](const IR::SelectCase *c) {
         if (!typeMap->isCompileTimeConstant(c->keyset)) return false;
 
-        return isCompileTimeConstant(c->keyset, typeMap) ||
-               c->keyset->is<IR::DefaultExpression>();
+        return isCompileTimeConstant(c->keyset, typeMap) || c->keyset->is<IR::DefaultExpression>();
     });
     // Remove all duplicated select cases by keyset.
     if (allConst) {
         IR::Vector<IR::SelectCase> tmp;
         for (auto c : cases) {  // exclude last
-            auto pred = [&](const IR::SelectCase* other) {
+            auto pred = [&](const IR::SelectCase *other) {
                 // For some reason, default equiv comparsion falls to Type_Tuple,
                 // and comparsion elements of IR::Type_InfInt::equiv which fails.
                 if (c->keyset->is<IR::ListExpression>() &&
@@ -113,7 +112,7 @@ const IR::Node *DoSimplifySelectCases::preorder(IR::SelectExpression *expression
     if (seenDefault && allConst) {
         auto excludeDefault = std::prev(cases.end());
         auto state = getDeclaration(cases.back()->state->path)->to<IR::ParserState>();
-        auto it = std::remove_if(cases.begin(), excludeDefault, [&](const IR::SelectCase* c) {
+        auto it = std::remove_if(cases.begin(), excludeDefault, [&](const IR::SelectCase *c) {
             return state == getDeclaration(c->state->path)->to<IR::ParserState>();
         });
         changes |= it != excludeDefault;
