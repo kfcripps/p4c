@@ -35,7 +35,7 @@ namespace P4 {
  * @post Unreachable case labels are removed. Case statement with
  *       a single label is replaced with a direct transition
  */
-class DoSimplifySelectCases : public Transform {
+class DoSimplifySelectCases : public Transform, ResolutionContext {
     const TypeMap *typeMap;
     bool requireConstants;
 
