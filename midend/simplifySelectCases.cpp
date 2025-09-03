@@ -92,13 +92,6 @@ const IR::Node *DoSimplifySelectCases::preorder(IR::SelectExpression *expression
         IR::Vector<IR::SelectCase> tmp;
         for (auto c : cases) {  // exclude last
             auto pred = [&](const IR::SelectCase *other) {
-                // For some reason, default equiv comparsion falls to Type_Tuple,
-                // and comparsion elements of IR::Type_InfInt::equiv which fails.
-                if (c->keyset->is<IR::ListExpression>() &&
-                    other->keyset->to<IR::ListExpression>()) {
-                    return c->keyset->to<IR::ListExpression>()->components.equiv(
-                        other->keyset->to<IR::ListExpression>()->components);
-                }
                 return c->keyset->equiv(*other->keyset);
             };
             if (!contains_if(tmp, pred)) tmp.push_back(c);
