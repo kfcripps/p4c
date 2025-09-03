@@ -27,6 +27,11 @@ namespace P4 {
  * - If there is just one case label, the select statement is eliminated.
  * - If a case label appears after the default label, the case is
  *   unreachable and therefore eliminated.
+ * - If all select case labels are compile-time constants, and if multiple different
+ *   states match a given case label, then all but the first select case with this
+ *   label are eliminated.
+ * - If all select case labels are compile-time constants, then all non-default transitions
+ *   to state s are eliminated if a select statement contains a default transition to state s.
  *
  * If requireConstants is true this pass requires that
  * all select labels evaluate to constants.
