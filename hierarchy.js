@@ -1567,6 +1567,7 @@ var hierarchy =
     [ "P4::IR::Traversal::Index", "struct_p4_1_1_i_r_1_1_traversal_1_1_index.html", null ],
     [ "P4::IterKeys< PairIter >", "class_p4_1_1_iter_keys.html", null ],
     [ "P4::IterValues< PairIter >", "class_p4_1_1_iter_values.html", null ],
+    [ "P4::JsonData::LocationInfo", "class_p4_1_1_json_data_1_1_location_info.html", null ],
     [ "P4::JSONGenerator", "class_p4_1_1_j_s_o_n_generator.html", null ],
     [ "P4::JSONLoader", "class_p4_1_1_j_s_o_n_loader.html", null ],
     [ "P4::KeyIsSimple", "class_p4_1_1_key_is_simple.html", [
@@ -1866,6 +1867,7 @@ var hierarchy =
     ] ],
     [ "P4::P4V1::TableAttributes_Model", "struct_p4_1_1_p4_v1_1_1_table_attributes___model.html", null ],
     [ "P4::PacketModification", "namespace_p4.html#struct_p4_1_1_packet_modification", null ],
+    [ "P4::ParserConfig", "namespace_p4.html#struct_p4_1_1_parser_config", null ],
     [ "P4::ParserErrorMessage", "struct_p4_1_1_parser_error_message.html", null ],
     [ "P4::ParserInfo", "class_p4_1_1_parser_info.html", null ],
     [ "P4::ParserMetrics", "namespace_p4.html#struct_p4_1_1_parser_metrics", null ],
@@ -2165,6 +2167,7 @@ var hierarchy =
         ] ],
         [ "P4::StorageLocation", "class_p4_1_1_storage_location.html", null ],
         [ "P4::SymbolicValue", "class_p4_1_1_symbolic_value.html", null ],
+        [ "P4::TC::PNAEbpfGenerator", "class_p4_1_1_t_c_1_1_p_n_a_ebpf_generator.html", null ],
         [ "P4::TypeConstraint", "class_p4_1_1_type_constraint.html", null ],
         [ "P4::Util::IJson", "class_p4_1_1_util_1_1_i_json.html", [
           [ "P4::Util::JsonArray", "class_p4_1_1_util_1_1_json_array.html", null ],
@@ -2257,7 +2260,7 @@ var hierarchy =
     [ "P4::TypeUnification", "class_p4_1_1_type_unification.html", null ],
     [ "P4::UniqueAttachedId", "class_p4_1_1_unique_attached_id.html", null ],
     [ "P4::UniqueId", "class_p4_1_1_unique_id.html", null ],
-    [ "P4::UnparsedConstant", "namespace_p4.html#struct_p4_1_1_unparsed_constant", null ],
+    [ "P4::UnparsedConstant", "struct_p4_1_1_unparsed_constant.html", null ],
     [ "P4::UnrollLoops::loop_bounds_t", "class_p4_1_1_unroll_loops.html#struct_p4_1_1_unroll_loops_1_1loop__bounds__t", null ],
     [ "P4::UnrollLoops::Policy", "struct_p4_1_1_unroll_loops_1_1_policy.html", null ],
     [ "P4::UnusedCodeHelperVars", "namespace_p4.html#struct_p4_1_1_unused_code_helper_vars", null ],
@@ -3033,7 +3036,8 @@ var hierarchy =
             ] ],
             [ "P4::EBPF::DeparserPrepareBufferTranslator", "class_p4_1_1_e_b_p_f_1_1_deparser_prepare_buffer_translator.html", [
               [ "P4::EBPF::DeparserHdrEmitTranslator", "class_p4_1_1_e_b_p_f_1_1_deparser_hdr_emit_translator.html", null ],
-              [ "P4::TC::DeparserHdrEmitTranslatorPNA", "class_p4_1_1_t_c_1_1_deparser_hdr_emit_translator_p_n_a.html", null ]
+              [ "P4::TC::DeparserHdrEmitTranslatorPNA", "class_p4_1_1_t_c_1_1_deparser_hdr_emit_translator_p_n_a.html", null ],
+              [ "P4::TC::SizeScanner", "class_p4_1_1_t_c_1_1_size_scanner.html", null ]
             ] ],
             [ "P4::TC::ControlBodyTranslatorPNA", "class_p4_1_1_t_c_1_1_control_body_translator_p_n_a.html", [
               [ "P4::TC::ActionTranslationVisitorPNA", "class_p4_1_1_t_c_1_1_action_translation_visitor_p_n_a.html", null ]
@@ -3996,6 +4000,9 @@ var hierarchy =
         [ "P4::Util::CompilationError", "class_p4_1_1_util_1_1_compilation_error.html", null ],
         [ "P4::Util::CompilerBug", "class_p4_1_1_util_1_1_compiler_bug.html", null ],
         [ "P4::Util::CompilerUnimplemented", "class_p4_1_1_util_1_1_compiler_unimplemented.html", null ]
+      ] ],
+      [ "std::runtime_error", null, [
+        [ "P4::JsonData::error", "struct_p4_1_1_json_data_1_1error.html", null ]
       ] ]
     ] ],
     [ "std::false_type", null, [
